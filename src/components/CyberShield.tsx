@@ -76,21 +76,21 @@ export default function CyberShield() {
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative flex items-center justify-center w-full max-w-[500px] h-[480px] sm:h-[540px] select-none perspective-[1200px]"
+      className="relative flex items-center justify-center w-full max-w-[300px] xs:max-w-[360px] sm:max-w-[500px] h-[360px] xs:h-[420px] sm:h-[540px] select-none perspective-[1200px] mx-auto"
     >
       {/* Ambient background glow behind shield */}
-      <div className="absolute w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] rounded-full bg-gradient-to-tr from-cyan-500/20 via-purple-600/25 to-blue-600/10 blur-[80px] pointer-events-none animate-pulse duration-[5000ms] will-change-transform" />
+      <div className="absolute w-[220px] h-[220px] xs:w-[280px] xs:h-[280px] sm:w-[420px] sm:h-[420px] rounded-full bg-gradient-to-tr from-cyan-500/20 via-purple-600/25 to-blue-600/10 blur-[60px] sm:blur-[80px] pointer-events-none animate-pulse duration-[5000ms] will-change-transform" />
 
       {/* Outer cyber ring with rotating tick marks */}
-      <div className="absolute w-[360px] h-[360px] sm:w-[440px] sm:h-[440px] rounded-full border border-cyan-500/15 pointer-events-none flex items-center justify-center animate-[spin_60s_linear_infinite] will-change-transform">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3 h-1 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3 h-1 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-400 shadow-[0_0_8px_#8b5cf6]" />
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-3 bg-purple-400 shadow-[0_0_8px_#8b5cf6]" />
+      <div className="absolute w-[260px] h-[260px] xs:w-[320px] xs:h-[320px] sm:w-[440px] sm:h-[440px] rounded-full border border-cyan-500/15 pointer-events-none flex items-center justify-center animate-[spin_60s_linear_infinite] will-change-transform">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 sm:w-3 h-1 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2.5 sm:w-3 h-1 bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2.5 sm:h-3 bg-purple-400 shadow-[0_0_8px_#8b5cf6]" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-2.5 sm:h-3 bg-purple-400 shadow-[0_0_8px_#8b5cf6]" />
       </div>
 
       {/* Middle dashed tech ring with reverse spin */}
-      <div className="absolute w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] rounded-full border border-dashed border-purple-500/20 pointer-events-none animate-[spin_40s_linear_infinite_reverse] will-change-transform" />
+      <div className="absolute w-[210px] h-[210px] xs:w-[260px] xs:h-[260px] sm:w-[380px] sm:h-[380px] rounded-full border border-dashed border-purple-500/20 pointer-events-none animate-[spin_40s_linear_infinite_reverse] will-change-transform" />
 
       {/* Main 3D Card / Shield Platform */}
       <div
@@ -104,7 +104,7 @@ export default function CyberShield() {
         }}
       >
         {/* Holographic Shield Base */}
-        <div className="relative w-[240px] h-[300px] sm:w-[280px] sm:h-[350px] flex items-center justify-center">
+        <div className="relative w-[180px] h-[225px] xs:w-[220px] xs:h-[275px] sm:w-[280px] sm:h-[350px] flex items-center justify-center">
           {/* SVG Shield Base with Glowing Gradients */}
           <svg
             viewBox="0 0 200 240"
@@ -216,25 +216,26 @@ export default function CyberShield() {
         
         {/* Badge 1: Top-Right (AI Architecture) */}
         <div
-          className="absolute -top-3 -right-6 sm:-right-12 glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 border border-cyan-400/30 shadow-[0_4px_20px_rgba(34,211,238,0.25)] transition-transform duration-300"
+          className="absolute -top-2 right-0 sm:-right-12 glass-panel px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 border border-cyan-400/30 shadow-[0_4px_20px_rgba(34,211,238,0.25)] transition-transform duration-300"
           style={{ transform: "translateZ(40px)" }}
         >
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
-          <span className="text-xs font-mono text-cyan-300 font-semibold tracking-wide flex items-center gap-1">
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-            Multi-Engine Analysis
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee] shrink-0" />
+          <span className="text-[10px] xs:text-xs font-mono text-cyan-300 font-semibold tracking-wide flex items-center gap-1 whitespace-nowrap">
+            <Cpu className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-cyan-400 shrink-0" />
+            <span>Multi-Engine Analysis</span>
           </span>
         </div>
 
         {/* Badge 2: Bottom-Left (Suspicious Pattern Detection - replaces zero-day claim) */}
         <div
-          className="absolute -bottom-4 -left-6 sm:-left-12 glass-panel-purple px-3 py-1.5 rounded-full flex items-center gap-2 border border-purple-500/30 shadow-[0_4px_20px_rgba(139,92,246,0.25)] transition-transform duration-300"
+          className="absolute -bottom-2 left-0 sm:-left-12 glass-panel-purple px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full flex items-center gap-1.5 sm:gap-2 border border-purple-500/30 shadow-[0_4px_20px_rgba(139,92,246,0.25)] transition-transform duration-300"
           style={{ transform: "translateZ(35px)" }}
         >
-          <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_#8b5cf6]" />
-          <span className="text-xs font-mono text-purple-300 font-semibold tracking-wide flex items-center gap-1">
-            <Zap className="w-3.5 h-3.5 text-purple-400" />
-            Suspicious Pattern Detection
+          <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-purple-400 animate-pulse shadow-[0_0_8px_#8b5cf6] shrink-0" />
+          <span className="text-[10px] xs:text-xs font-mono text-purple-300 font-semibold tracking-wide flex items-center gap-1 whitespace-nowrap">
+            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-purple-400 shrink-0" />
+            <span className="hidden xs:inline">Suspicious Pattern Detection</span>
+            <span className="xs:hidden">Pattern Detection</span>
           </span>
         </div>
 

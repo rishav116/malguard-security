@@ -57,7 +57,7 @@ export default function ScanCharts({ hasData = false }: ScanChartsProps) {
           </div>
 
           {/* Bar Chart Visualization */}
-          <div className="h-48 w-full pt-6 flex items-end justify-between gap-3 px-2 border-b border-white/[0.06]">
+          <div className="h-48 w-full pt-6 flex items-end justify-between gap-1.5 xs:gap-2 sm:gap-3 px-1 xs:px-2 border-b border-white/[0.06]">
             {activityData.map((item, idx) => (
               <div
                 key={idx}

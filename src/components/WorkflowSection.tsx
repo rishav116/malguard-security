@@ -176,7 +176,7 @@ export default function WorkflowSection() {
         </div>
 
         {/* Dynamic Detail Console for the Selected Step */}
-        <div className="rounded-2xl glass-panel p-6 sm:p-8 border border-cyan-500/25 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
+        <div className="rounded-2xl glass-panel p-4 xs:p-6 sm:p-8 border border-cyan-500/25 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left explanation */}
@@ -218,7 +218,7 @@ export default function WorkflowSection() {
                 </div>
 
                 {/* Console Output */}
-                <pre className="text-cyan-300/90 whitespace-pre-wrap leading-relaxed">
+                <pre className="text-cyan-300/90 whitespace-pre-wrap break-all leading-relaxed">
                   {steps[selectedStep - 1].terminalSnippet}
                 </pre>
               </div>

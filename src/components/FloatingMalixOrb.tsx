@@ -361,7 +361,7 @@ export default function FloatingMalixOrb() {
       {/* 1. Floating Malix Chat Drawer */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-4 sm:right-6 z-50 w-[380px] sm:w-[420px] max-w-[calc(100vw-32px)] h-[560px] max-h-[calc(100vh-120px)] flex flex-col rounded-2xl bg-[#071120]/95 backdrop-blur-xl border border-cyan-500/30 shadow-[0_12px_45px_rgba(0,0,0,0.85),0_0_35px_rgba(34,211,238,0.25)] overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200"
+          className="fixed bottom-16 xs:bottom-20 right-2 xs:right-4 sm:right-6 z-50 w-[360px] sm:w-[420px] max-w-[calc(100vw-16px)] xs:max-w-[calc(100vw-32px)] h-[520px] sm:h-[560px] max-h-[calc(100dvh-100px)] flex flex-col rounded-2xl bg-[#071120]/95 backdrop-blur-xl border border-cyan-500/30 shadow-[0_12px_45px_rgba(0,0,0,0.85),0_0_35px_rgba(34,211,238,0.25)] overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200"
           role="dialog"
           aria-label="Malix AI Floating Window"
         >
@@ -516,10 +516,10 @@ export default function FloatingMalixOrb() {
         </div>
       )}
 
-      {/* 2. Floating 3D Spherical Malix AI Orb (Bottom-Right, 20% smaller) */}
+      {/* 2. Floating 3D Spherical Malix AI Orb */}
       <aside
         aria-label="Malix AI trigger"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center select-none"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center justify-center select-none"
       >
         {/* Ambient Pulsing Glow Halo */}
         <div
@@ -527,10 +527,10 @@ export default function FloatingMalixOrb() {
           aria-hidden="true"
         />
 
-        {/* Trigger Button with 3D Spherical Orb (Reduced by 20%: 52px on mobile, 64px on desktop) */}
+        {/* Trigger Button with 3D Spherical Orb */}
         <button
           onClick={() => setIsOpen((prev) => !prev)}
-          className="group relative w-[52px] h-[52px] sm:w-16 sm:h-16 rounded-full transition-all duration-150 hover:scale-105 active:scale-95 focus:outline-none animate-orb-float animate-orb-glow cursor-pointer"
+          className="group relative w-[48px] h-[48px] sm:w-16 sm:h-16 rounded-full transition-all duration-150 hover:scale-105 active:scale-95 focus:outline-none animate-orb-float animate-orb-glow cursor-pointer"
           aria-label={isOpen ? "Close Malix AI" : "Open Malix AI"}
           title={isOpen ? "Close Malix AI" : "Ask Malix AI Security Assistant"}
         >

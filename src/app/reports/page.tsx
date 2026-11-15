@@ -132,7 +132,7 @@ export default function ThreatReportsPage() {
       >
         <DashboardHeader onToggleMobileSidebar={() => setMobileSidebarOpen(true)} />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <main className="flex-1 p-3 xs:p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           
           {/* Page Title & Actions */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -262,7 +262,7 @@ export default function ThreatReportsPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+                <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
                     <tr className="border-b border-white/[0.06] text-[11px] font-mono text-slate-400 uppercase tracking-wider bg-[#050C18]/80">
                       <th className="py-3 px-4">Artifact</th>
@@ -402,20 +402,20 @@ export default function ThreatReportsPage() {
       {selectedScan && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div
-            className="w-full max-w-2xl bg-[#071120] border border-cyan-500/30 rounded-2xl p-6 space-y-6 max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(34,211,238,0.2)] animate-in fade-in duration-200"
+            className="w-full max-w-2xl bg-[#071120] border border-cyan-500/30 rounded-2xl p-4 xs:p-6 space-y-6 max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(34,211,238,0.2)] animate-in fade-in duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between gap-4 pb-4 border-b border-white/[0.08]">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 flex items-center justify-center">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400 text-cyan-300 flex items-center justify-center shrink-0">
                   <Shield className="w-5 h-5" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white font-display">
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-bold text-white font-display truncate">
                     Scan Detail: {selectedScan.file_name}
                   </h3>
-                  <div className="text-xs font-mono text-slate-400">
+                  <div className="text-xs font-mono text-slate-400 truncate">
                     Scan ID: {selectedScan.id}
                   </div>
                 </div>
@@ -423,7 +423,7 @@ export default function ThreatReportsPage() {
 
               <button
                 onClick={() => setSelectedScan(null)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -431,7 +431,7 @@ export default function ThreatReportsPage() {
 
             {/* Verdict Badge Bar */}
             <div
-              className={`p-4 rounded-xl border flex items-center justify-between ${
+              className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 ${
                 selectedScan.verdict === "MALICIOUS"
                   ? "bg-rose-950/50 border-rose-500/50 text-rose-300"
                   : selectedScan.verdict === "SUSPICIOUS"
@@ -442,16 +442,16 @@ export default function ThreatReportsPage() {
               }`}
             >
               <div className="flex items-center gap-2.5">
-                {selectedScan.verdict === "MALICIOUS" && <ShieldAlert className="w-6 h-6 text-rose-400" />}
-                {selectedScan.verdict === "SUSPICIOUS" && <AlertTriangle className="w-6 h-6 text-amber-400" />}
-                {selectedScan.verdict === "NO_THREAT_DETECTED" && <ShieldCheck className="w-6 h-6 text-emerald-400" />}
-                {selectedScan.verdict === "INCONCLUSIVE" && <RefreshCw className="w-6 h-6 text-cyan-400" />}
+                {selectedScan.verdict === "MALICIOUS" && <ShieldAlert className="w-6 h-6 text-rose-400 shrink-0" />}
+                {selectedScan.verdict === "SUSPICIOUS" && <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />}
+                {selectedScan.verdict === "NO_THREAT_DETECTED" && <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />}
+                {selectedScan.verdict === "INCONCLUSIVE" && <RefreshCw className="w-6 h-6 text-cyan-400 shrink-0" />}
                 <div>
                   <div className="text-[10px] font-mono uppercase tracking-wider">Final Synthesized Verdict</div>
                   <div className="text-lg font-extrabold">{selectedScan.verdict}</div>
                 </div>
               </div>
-              <div className="text-right text-xs font-mono text-slate-300">
+              <div className="text-left sm:text-right text-xs font-mono text-slate-300">
                 {formatDeterministicDateTime(selectedScan.created_at)}
               </div>
             </div>
@@ -476,14 +476,14 @@ export default function ThreatReportsPage() {
               <span className="text-slate-400 uppercase tracking-wider text-[11px] block">
                 Cryptographic Fingerprints:
               </span>
-              <div className="space-y-1">
-                <div className="flex justify-between items-center text-slate-400">
+              <div className="space-y-1.5">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-slate-400 gap-1">
                   <span>SHA-256:</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-cyan-300 font-bold">{selectedScan.sha256}</span>
+                  <div className="flex items-center gap-1.5 break-all">
+                    <span className="text-cyan-300 font-bold break-all select-all">{selectedScan.sha256}</span>
                     <button
                       onClick={() => handleCopyHash(selectedScan.sha256)}
-                      className="text-slate-400 hover:text-white"
+                      className="text-slate-400 hover:text-white shrink-0 p-1"
                       title="Copy"
                     >
                       {copiedHash === selectedScan.sha256 ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}

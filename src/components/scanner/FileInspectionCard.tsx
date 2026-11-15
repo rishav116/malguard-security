@@ -65,32 +65,32 @@ export default function FileInspectionCard({
     <div className="w-full space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
       
       {/* Top Banner: File Summary */}
-      <div className="p-6 rounded-2xl bg-[#071120]/95 border border-cyan-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(34,211,238,0.12)]">
+      <div className="p-4 xs:p-6 rounded-2xl bg-[#071120]/95 border border-cyan-500/30 backdrop-blur-xl shadow-[0_0_40px_rgba(34,211,238,0.12)]">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-5 border-b border-white/[0.08]">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 border border-cyan-400/40 text-cyan-400 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-              <FileCode2 className="w-7 h-7" />
+          <div className="flex items-center gap-3 xs:gap-4 min-w-0">
+            <div className="w-12 h-12 xs:w-14 xs:h-14 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-purple-600/20 border border-cyan-400/40 text-cyan-400 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+              <FileCode2 className="w-6 h-6 xs:w-7 xs:h-7" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h2 className="text-xl sm:text-2xl font-bold text-white font-display tracking-tight break-all">
+                <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-white font-display tracking-tight break-all">
                   {inspection.fileName}
                 </h2>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-cyan-950/80 border border-cyan-500/40 text-cyan-300 shrink-0">
                   {inspection.targetType}
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-xs font-mono text-slate-400">
+              <div className="flex flex-wrap items-center gap-2 xs:gap-3 text-xs font-mono text-slate-400">
                 <span>Size: <strong className="text-slate-200">{inspection.formattedSize}</strong></span>
                 <span>•</span>
-                <span>Architecture: <strong className="text-slate-200">{inspection.architecture}</strong></span>
+                <span>Arch: <strong className="text-slate-200">{inspection.architecture}</strong></span>
               </div>
             </div>
           </div>
 
           <button
             onClick={onReset}
-            className="px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 hover:border-cyan-500/30 text-xs font-mono text-slate-300 hover:text-white transition-all cursor-pointer shrink-0"
+            className="w-full sm:w-auto justify-center px-4 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 border border-white/10 hover:border-cyan-500/30 text-xs font-mono text-slate-300 hover:text-white transition-all cursor-pointer shrink-0 min-h-[38px] active:scale-95 flex items-center"
           >
             ← Scan Another File
           </button>
@@ -103,7 +103,7 @@ export default function FileInspectionCard({
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div className="overflow-hidden w-full">
-              <div className="text-xs uppercase tracking-wider font-mono font-medium text-slate-400 flex items-center gap-2">
+              <div className="text-xs uppercase tracking-wider font-mono font-medium text-slate-400 flex items-center gap-2 flex-wrap">
                 <span>Verified SHA-256 Digest (Web Crypto API)</span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-400 border border-emerald-500/30 font-medium">
                   Real Hash
@@ -117,7 +117,7 @@ export default function FileInspectionCard({
 
           <button
             onClick={handleCopyHash}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-xs font-mono text-cyan-300 transition-colors shrink-0 cursor-pointer"
+            className="w-full sm:w-auto justify-center flex items-center gap-1.5 px-3 py-2 sm:py-1.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-xs font-mono text-cyan-300 transition-colors shrink-0 cursor-pointer min-h-[38px] active:scale-95"
             title="Copy SHA-256 to clipboard"
           >
             {copied ? (
@@ -230,12 +230,12 @@ export default function FileInspectionCard({
               style={{ width: `${Math.min(100, (inspection.entropy / 8.0) * 100)}%` }}
             />
           </div>
-          <div className="flex justify-between text-[11px] font-mono text-slate-400">
-            <span>0.0 (Uniform)</span>
-            <span>4.0</span>
-            <span>6.0 (Standard Code)</span>
-            <span>7.2+ (Encrypted/Packed)</span>
-            <span>8.0 (Maximum)</span>
+          <div className="flex justify-between text-[10px] xs:text-[11px] font-mono text-slate-400">
+            <span>0.0</span>
+            <span className="hidden xs:inline">4.0</span>
+            <span>6.0 (Normal)</span>
+            <span>7.2+ (Packed)</span>
+            <span>8.0</span>
           </div>
         </div>
       </div>

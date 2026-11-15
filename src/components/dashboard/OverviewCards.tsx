@@ -74,7 +74,7 @@ export default function OverviewCards({
             className={`group relative rounded-2xl p-[1px] bg-gradient-to-b ${card.bgGradient} transition-all duration-300 hover:-translate-y-1`}
           >
             <div
-              className={`rounded-2xl bg-[#070F1E] p-5 sm:p-6 border ${card.borderColor} ${card.glowColor} transition-colors shadow-lg flex flex-col justify-between h-full`}
+              className={`rounded-2xl bg-[#070F1E] p-4 xs:p-5 sm:p-6 border ${card.borderColor} ${card.glowColor} transition-colors shadow-lg flex flex-col justify-between h-full`}
             >
               <div>
                 <div className="flex items-center justify-between mb-4">

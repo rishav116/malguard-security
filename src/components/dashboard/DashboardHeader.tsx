@@ -59,10 +59,11 @@ export default function DashboardHeader({
         <Link
           href="/scanner"
           onClick={onOpenQuickScan}
-          className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all cursor-pointer"
+          className="px-2.5 xs:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all cursor-pointer min-h-[38px] active:scale-95 shrink-0"
         >
-          <Shield className="w-3.5 h-3.5" />
-          <span>Quick Scan</span>
+          <Shield className="w-3.5 h-3.5 shrink-0" />
+          <span className="hidden xs:inline">Quick Scan</span>
+          <span className="xs:hidden">Scan</span>
         </Link>
 
         {/* Profile Menu Dropdown */}

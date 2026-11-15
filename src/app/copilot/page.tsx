@@ -353,7 +353,7 @@ function CopilotContent() {
       >
         <DashboardHeader onToggleMobileSidebar={() => setMobileSidebarOpen(true)} />
 
-        <main className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-4">
+        <main className="flex-1 flex flex-col p-3 xs:p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-4">
           
           {/* Top Bar / Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
@@ -494,24 +494,24 @@ function CopilotContent() {
           )}
 
           {/* Chat Messages Container */}
-          <div className="flex-1 min-h-[420px] max-h-[580px] overflow-y-auto rounded-2xl bg-[#070F1E]/80 border border-white/[0.08] p-4 sm:p-6 space-y-4 shadow-inner">
+          <div className="flex-1 min-h-[300px] h-[52vh] sm:h-[55vh] md:h-[580px] overflow-y-auto rounded-2xl bg-[#070F1E]/80 border border-white/[0.08] p-3 xs:p-4 sm:p-6 space-y-4 shadow-inner">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex gap-3 sm:gap-4 ${
+                className={`flex gap-2.5 sm:gap-4 ${
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
                 {/* Bot Avatar */}
                 {msg.role === "model" && (
-                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-400/40 text-purple-300 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
-                    <Sparkles className="w-4 h-4" />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-purple-500/20 border border-purple-400/40 text-purple-300 flex items-center justify-center shrink-0 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </div>
                 )}
 
                 {/* Message Bubble */}
                 <div
-                  className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed relative group ${
+                  className={`max-w-[90%] sm:max-w-[78%] rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm leading-relaxed relative group ${
                     msg.role === "user"
                       ? "bg-gradient-to-r from-cyan-600/90 to-blue-600/90 text-white rounded-tr-none shadow-md"
                       : "bg-[#0A1426] border border-purple-500/20 text-slate-200 rounded-tl-none shadow-xl"

@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
       <div className="absolute inset-0 cyber-grid opacity-20 pointer-events-none" />
 
       <div className="relative w-full max-w-md rounded-2xl p-[1px] bg-gradient-to-b from-cyan-500/30 via-purple-500/15 to-transparent shadow-[0_0_50px_rgba(0,0,0,0.8)]">
-        <div className="rounded-2xl bg-[#070F1E]/95 backdrop-blur-2xl p-8 sm:p-10 border border-white/[0.08]">
+        <div className="rounded-2xl bg-[#070F1E]/95 backdrop-blur-2xl p-5 xs:p-7 sm:p-10 border border-white/[0.08]">
           
           {/* Header */}
           <div className="text-center mb-6">
@@ -112,7 +112,7 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-purple-600 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50 cursor-pointer"
+              className="w-full min-h-[44px] py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-purple-600 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50 cursor-pointer active:scale-[0.99]"
             >
               {loading ? "Sending Link..." : "Send Reset Link"}
               <ArrowRight className="w-4 h-4" />

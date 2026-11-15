@@ -87,7 +87,7 @@ export default function EngineStatusBanner({
                     ? "Detection Engine Connected"
                     : "Detection Engine Not Connected"}
                 </h3>
-                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-900 border border-white/10 text-slate-300">
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-900 border border-white/10 text-slate-300 max-w-[200px] sm:max-w-none truncate">
                   {engineStatus.endpoint}
                 </span>
               </div>
@@ -101,13 +101,13 @@ export default function EngineStatusBanner({
           </div>
 
           {/* Action buttons */}
-          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
+          <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-3 w-full lg:w-auto justify-end">
             
             {/* Test Connection Button */}
             <button
               onClick={handleTestConnection}
               disabled={isChecking}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/10 hover:border-cyan-500/40 text-xs font-mono text-cyan-300 transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center justify-center gap-2 px-3.5 py-2.5 sm:py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 border border-white/10 hover:border-cyan-500/40 text-xs font-mono text-cyan-300 transition-all cursor-pointer disabled:opacity-50 min-h-[40px] active:scale-95"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isChecking ? "animate-spin" : ""}`} />
               <span>{isChecking ? "Testing..." : "Test Connection"}</span>
@@ -117,7 +117,7 @@ export default function EngineStatusBanner({
             <button
               onClick={onRunCloudScan}
               disabled={!engineStatus.connected || !hasFileSelected || isScanningCloud}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold transition-all min-h-[40px] active:scale-95 ${
                 engineStatus.connected && hasFileSelected && !isScanningCloud
                   ? "bg-gradient-to-r from-cyan-400 to-purple-500 text-slate-950 hover:brightness-110 shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-pointer"
                   : "bg-slate-900/80 border border-slate-800 text-slate-500 cursor-not-allowed"

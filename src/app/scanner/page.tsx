@@ -273,7 +273,7 @@ export default function ScannerPage() {
           onOpenQuickScan={handleReset}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <main className="flex-1 p-3 xs:p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           
           {/* Breadcrumbs & Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
@@ -407,7 +407,7 @@ export default function ScannerPage() {
 
               {/* Real Backend Scan Results Card */}
               {cloudScanResult && (
-                <div className="p-6 rounded-2xl bg-[#071120]/95 border border-cyan-500/40 backdrop-blur-xl space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-[0_0_35px_rgba(34,211,238,0.15)]">
+                <div className="p-4 xs:p-6 rounded-2xl bg-[#071120]/95 border border-cyan-500/40 backdrop-blur-xl space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-300 shadow-[0_0_35px_rgba(34,211,238,0.15)]">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/30 text-cyan-400 flex items-center justify-center">

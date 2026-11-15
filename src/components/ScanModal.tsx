@@ -118,10 +118,10 @@ export default function ScanModal({ isOpen, onClose }: ScanModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto bg-[#040812]/80 backdrop-blur-xl animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 xs:p-4 sm:p-6 overflow-y-auto bg-[#040812]/85 backdrop-blur-xl animate-in fade-in duration-200">
       
       {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-2xl rounded-2xl glass-panel p-6 sm:p-8 border border-cyan-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] my-8">
+      <div className="relative w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-2xl glass-panel p-4 xs:p-6 sm:p-8 border border-cyan-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto">
         
         {/* Close Button */}
         <button
@@ -302,7 +302,7 @@ export default function ScanModal({ isOpen, onClose }: ScanModalProps) {
             </div>
 
             {/* Target Artifact Details */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-[#060D19] border border-white/[0.08] text-xs font-mono">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-[#060D19] border border-white/[0.08] text-xs font-mono">
               <div>
                 <span className="text-slate-400">Target File:</span>
                 <p className="text-white font-semibold truncate">{result.fileName}</p>

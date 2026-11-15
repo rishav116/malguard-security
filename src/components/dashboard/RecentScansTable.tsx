@@ -41,12 +41,12 @@ export default function RecentScansTable({
   onInspectScan,
 }: RecentScansTableProps) {
   return (
-    <div id="recent-scans" className="rounded-2xl glass-panel p-6 border border-white/[0.08] shadow-2xl">
+    <div id="recent-scans" className="rounded-2xl glass-panel p-4 xs:p-6 border border-white/[0.08] shadow-2xl">
       
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-base sm:text-lg font-bold text-white font-display">
               Recent Artifact Scans
             </h3>
@@ -61,22 +61,22 @@ export default function RecentScansTable({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
           {/* Toggle sample demo data button */}
           <button
             onClick={onToggleSampleData}
-            className="px-3 py-1.5 rounded-xl bg-[#091526] hover:bg-[#0d1e36] border border-cyan-500/30 text-cyan-300 text-xs font-mono transition-colors flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 sm:py-1.5 rounded-xl bg-[#091526] hover:bg-[#0d1e36] border border-cyan-500/30 text-cyan-300 text-xs font-mono transition-colors flex items-center justify-center gap-1.5 cursor-pointer min-h-[38px] active:scale-95"
           >
-            <RefreshCw className="w-3 h-3" />
-            <span>{isSampleData ? "Clear to Empty State" : "Load Sample Telemetry"}</span>
+            <RefreshCw className="w-3 h-3 shrink-0" />
+            <span>{isSampleData ? "Clear Demo Data" : "Load Sample Telemetry"}</span>
           </button>
 
           {/* Quick Scan CTA */}
           <button
             onClick={onOpenQuickScan}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-md cursor-pointer hover:brightness-110 transition-all"
+            className="px-3.5 py-2 sm:py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer hover:brightness-110 transition-all min-h-[38px] active:scale-95"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus className="w-3.5 h-3.5 shrink-0" />
             <span>Scan Artifact</span>
           </button>
         </div>
@@ -116,7 +116,7 @@ export default function RecentScansTable({
       ) : (
         /* Scans Table */
         <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-[#050C17]">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="border-b border-white/[0.08] text-xs font-mono font-medium text-slate-300 uppercase tracking-wider bg-[#060E1A]">
                 <th className="py-3 px-4">Artifact Name</th>

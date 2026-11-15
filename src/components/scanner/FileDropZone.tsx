@@ -111,7 +111,7 @@ export default function FileDropZone({
             handleClickBrowse();
           }
         }}
-        className={`relative group rounded-2xl p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer select-none overflow-hidden border-2 border-dashed ${
+        className={`relative group rounded-2xl p-5 xs:p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer select-none overflow-hidden border-2 border-dashed ${
           isDragOver
             ? "border-cyan-400 bg-cyan-950/40 shadow-[0_0_35px_rgba(34,211,238,0.35)]"
             : "border-slate-700/80 hover:border-cyan-500/50 bg-[#071120]/80 hover:bg-[#0a182d]/90 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
@@ -137,16 +137,16 @@ export default function FileDropZone({
         <div className="relative z-10 flex flex-col items-center justify-center">
           {/* Animated Cyber Icon Badge */}
           <div
-            className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-5 transition-transform duration-300 border ${
+            className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center mb-4 sm:mb-5 transition-transform duration-300 border ${
               isDragOver
                 ? "bg-cyan-500/20 border-cyan-400 text-cyan-300 scale-110 shadow-[0_0_25px_rgba(34,211,238,0.5)]"
                 : "bg-slate-900/80 border-slate-700 group-hover:border-cyan-500/40 text-cyan-400 group-hover:scale-105 shadow-[0_0_15px_rgba(34,211,238,0.15)]"
             }`}
           >
             {isDragOver ? (
-              <FileCode2 className="w-10 h-10 animate-pulse text-cyan-300" />
+              <FileCode2 className="w-8 h-8 sm:w-10 sm:h-10 animate-pulse text-cyan-300" />
             ) : (
-              <UploadCloud className="w-10 h-10 text-cyan-400 group-hover:-translate-y-1 transition-transform duration-300" />
+              <UploadCloud className="w-8 h-8 sm:w-10 sm:h-10 text-cyan-400 group-hover:-translate-y-1 transition-transform duration-300" />
             )}
           </div>
 

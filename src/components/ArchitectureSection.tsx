@@ -44,34 +44,34 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
         </div>
 
         {/* Tab Selector */}
-        <div className="flex justify-center mb-10">
-          <div className="glass-panel p-1 rounded-xl flex gap-1 border border-white/[0.08]">
+        <div className="flex justify-center mb-10 w-full">
+          <div className="glass-panel p-1 rounded-xl flex flex-col sm:flex-row gap-1 border border-white/[0.08] w-full sm:w-auto">
             <button
               onClick={() => setActiveTab("malix")}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-center min-h-[44px] flex items-center justify-center cursor-pointer ${
                 activeTab === "malix"
                   ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-slate-950 font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               Malix Security Assistant
             </button>
             <button
               onClick={() => setActiveTab("sandbox")}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-center min-h-[44px] flex items-center justify-center cursor-pointer ${
                 activeTab === "sandbox"
                   ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-slate-950 font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               Secure File Handling
             </button>
             <button
               onClick={() => setActiveTab("mitre")}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all text-center min-h-[44px] flex items-center justify-center cursor-pointer ${
                 activeTab === "mitre"
                   ? "bg-gradient-to-r from-cyan-500 to-purple-600 text-slate-950 font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
-                  : "text-slate-400 hover:text-white"
+                  : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
               }`}
             >
               Threat Intelligence & Audit
@@ -80,7 +80,7 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
         </div>
 
         {/* Dynamic Interactive Panel */}
-        <div className="rounded-3xl glass-panel p-6 sm:p-10 border border-cyan-500/20 shadow-[0_4px_40px_rgba(0,0,0,0.6)]">
+        <div className="rounded-2xl sm:rounded-3xl glass-panel p-4 xs:p-6 sm:p-10 border border-cyan-500/20 shadow-[0_4px_40px_rgba(0,0,0,0.6)]">
           
           {activeTab === "malix" && (
             <div id="malix-ai" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-in fade-in duration-300">
@@ -247,9 +247,9 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
 
               <div className="lg:col-span-6">
                 <div className="rounded-2xl bg-[#040810] border border-slate-700 p-5 font-mono text-xs space-y-3 shadow-2xl">
-                  <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 text-slate-400 text-xs">
-                    <span className="text-slate-200 font-semibold">INDICATOR OF COMPROMISE (IOC) FEED (ILLUSTRATIVE DEMO)</span>
-                    <span className="text-cyan-400">JSON FORMAT</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/[0.08] pb-3 text-slate-400 text-xs gap-1">
+                    <span className="text-slate-200 font-semibold truncate">IOC THREAT FEED (ILLUSTRATIVE DEMO)</span>
+                    <span className="text-cyan-400 shrink-0">JSON FORMAT</span>
                   </div>
                   <pre className="text-cyan-300/90 text-xs leading-relaxed overflow-x-auto p-2 bg-[#060D19] rounded-lg">
 {`{

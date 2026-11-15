@@ -191,7 +191,7 @@ export default function DashboardPage() {
         />
 
         {/* Dashboard Main View */}
-        <main className="p-4 sm:p-6 lg:p-8 space-y-8 flex-1">
+        <main className="p-3 xs:p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 flex-1">
           
           {/* Welcome Banner & Environment Notice */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 <span>ANALYST WORKSPACE</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-display">
+              <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold text-white tracking-tight font-display">
                 Welcome back, {userDisplayName}
               </h2>
               <p className="text-xs sm:text-sm text-slate-400 mt-1">

@@ -36,7 +36,7 @@ export default function InspectionProgress({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         {stages.map((stage, idx) => {
           const Icon = stage.icon;
           const isDone = stage.status === "completed";

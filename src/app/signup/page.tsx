@@ -91,7 +91,7 @@ export default function SignupPage() {
         <div className="rounded-2xl bg-[#070F1E]/95 backdrop-blur-2xl grid grid-cols-1 lg:grid-cols-12 overflow-hidden border border-white/[0.08]">
           
           {/* Left Column: Brand & Security Overview */}
-          <div className="lg:col-span-5 p-8 sm:p-10 bg-gradient-to-b from-[#091528] to-[#060D19] flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06]">
+          <div className="lg:col-span-5 p-5 xs:p-7 sm:p-10 bg-gradient-to-b from-[#091528] to-[#060D19] flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06]">
             
             <div>
               {/* Top Badge */}
@@ -145,7 +145,7 @@ export default function SignupPage() {
           </div>
 
           {/* Right Column: Sign Up Form */}
-          <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center">
+          <div className="lg:col-span-7 p-5 xs:p-7 sm:p-10 flex flex-col justify-center">
             
             <div className="mb-6">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-display">
@@ -300,7 +300,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-500 via-sky-500 to-cyan-400 hover:from-purple-400 hover:to-cyan-300 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full min-h-[44px] py-3 rounded-xl bg-gradient-to-r from-purple-500 via-sky-500 to-cyan-400 hover:from-purple-400 hover:to-cyan-300 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(139,92,246,0.3)] transition-all disabled:opacity-50 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -322,7 +322,7 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={handleDemoAccess}
-                className="w-full py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/40 border border-cyan-500/30 text-xs font-mono text-cyan-300 font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full min-h-[44px] py-2.5 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/40 border border-cyan-500/30 text-xs font-mono text-cyan-300 font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95"
               >
                 <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Explore in Demo Mode (Skip Setup)</span>

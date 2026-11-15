@@ -51,7 +51,7 @@ export default function FeatureCards() {
             {/* Gradient border on hover */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-cyan-500/40 via-cyan-500/10 to-transparent opacity-60 group-hover:opacity-100 transition-opacity blur-[1px]" />
             
-            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-6 sm:p-8 flex flex-col justify-between border border-cyan-500/20 group-hover:border-cyan-400/40 transition-colors transform-gpu">
+            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-4 xs:p-6 sm:p-8 flex flex-col justify-between border border-cyan-500/20 group-hover:border-cyan-400/40 transition-colors transform-gpu">
               
               <div>
                 {/* Top Icon & Badge */}
@@ -126,7 +126,7 @@ export default function FeatureCards() {
             {/* Gradient border on hover */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-purple-500/40 via-purple-500/10 to-transparent opacity-60 group-hover:opacity-100 transition-opacity blur-[1px]" />
             
-            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-6 sm:p-8 flex flex-col justify-between border border-purple-500/20 group-hover:border-purple-400/40 transition-colors transform-gpu">
+            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-4 xs:p-6 sm:p-8 flex flex-col justify-between border border-purple-500/20 group-hover:border-purple-400/40 transition-colors transform-gpu">
               
               <div>
                 {/* Top Icon & Badge */}
@@ -205,7 +205,7 @@ export default function FeatureCards() {
             {/* Gradient border on hover */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-cyan-500/30 via-purple-500/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity blur-[1px]" />
             
-            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-6 sm:p-8 flex flex-col justify-between border border-cyan-500/20 group-hover:border-cyan-400/40 transition-colors transform-gpu">
+            <div className="relative flex-1 rounded-2xl bg-[#091322]/95 backdrop-blur-sm p-4 xs:p-6 sm:p-8 flex flex-col justify-between border border-cyan-500/20 group-hover:border-cyan-400/40 transition-colors transform-gpu">
               
               <div>
                 {/* Top Icon & Badge */}

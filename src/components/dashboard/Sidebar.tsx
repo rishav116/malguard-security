@@ -108,7 +108,7 @@ export default function Sidebar({
                   key={item.id}
                   href={item.href}
                   onClick={onCloseMobile}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-medium min-h-[44px] transition-all ${
                     isActive
                       ? "bg-gradient-to-r from-cyan-500/15 to-purple-500/10 text-cyan-300 border border-cyan-500/30 font-semibold"
                       : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/40"
@@ -141,7 +141,7 @@ export default function Sidebar({
             <Link
               href="/scanner"
               onClick={onCloseMobile}
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all cursor-pointer"
+              className="w-full min-h-[44px] py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.3)] transition-all cursor-pointer active:scale-95"
             >
               <Shield className="w-4 h-4" />
               <span>Quick Scan</span>
@@ -177,7 +177,7 @@ export default function Sidebar({
             {/* Logout button */}
             <button
               onClick={signOut}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
+              className="p-2 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

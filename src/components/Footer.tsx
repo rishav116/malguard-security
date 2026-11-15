@@ -132,11 +132,11 @@ export default function Footer({ onOpenScanModal }: { onOpenScanModal: () => voi
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500 text-center sm:text-left">
           <div>
             © {new Date().getFullYear()} MALGUARD AI Security. All rights reserved.
           </div>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <span className="text-slate-400">Next.js • TypeScript • Tailwind CSS • Malix AI</span>
           </div>
         </div>

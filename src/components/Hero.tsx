@@ -42,20 +42,20 @@ export default function Hero({ onOpenScanModal }: HeroProps) {
           <div className="lg:col-span-7 flex flex-col items-start text-left z-10">
             
             {/* Top Pill / Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel border border-cyan-400/30 text-xs font-mono text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] mb-6">
-              <span className="flex h-2 w-2 relative">
+            <div className="inline-flex items-center gap-1.5 xs:gap-2 px-3 py-1.5 rounded-full glass-panel border border-cyan-400/30 text-[11px] xs:text-xs font-mono text-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.15)] mb-6 max-w-full flex-wrap sm:flex-nowrap">
+              <span className="flex h-2 w-2 relative shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </span>
               <span className="tracking-wide uppercase font-semibold">Active Detection Engine</span>
-              <span className="text-slate-500">|</span>
+              <span className="text-slate-500 hidden xs:inline">|</span>
               <span className="text-purple-300 flex items-center gap-1 font-sans font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-purple-400" /> Malix AI Security Assistant
+                <Sparkles className="w-3.5 h-3.5 text-purple-400 shrink-0" /> Malix AI Security Assistant
               </span>
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.12] mb-6">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.15] mb-6">
               Detect Threats. <br />
               <span className="text-gradient-shield">
                 Understand Risks.
@@ -100,9 +100,9 @@ export default function Hero({ onOpenScanModal }: HeroProps) {
             </div>
 
             {/* Value Architecture Chips */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full pt-4 border-t border-white/[0.08]">
+            <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-3 w-full pt-4 border-t border-white/[0.08]">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                <div className="p-1.5 rounded-md bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shrink-0">
                   <Binary className="w-4 h-4" />
                 </div>
                 <div>
@@ -112,7 +112,7 @@ export default function Hero({ onOpenScanModal }: HeroProps) {
               </div>
 
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                <div className="p-1.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-400 shrink-0">
                   <Cpu className="w-4 h-4" />
                 </div>
                 <div>
@@ -121,8 +121,8 @@ export default function Hero({ onOpenScanModal }: HeroProps) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5 col-span-2 sm:col-span-1">
-                <div className="p-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <div className="flex items-center gap-2.5 xs:col-span-2 sm:col-span-1">
+                <div className="p-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shrink-0">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>

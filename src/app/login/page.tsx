@@ -58,7 +58,7 @@ export default function LoginPage() {
         <div className="rounded-2xl bg-[#070F1E]/95 backdrop-blur-2xl grid grid-cols-1 lg:grid-cols-12 overflow-hidden border border-white/[0.08]">
           
           {/* Left Column: Cyber Brand & Feature Bullets */}
-          <div className="lg:col-span-5 p-8 sm:p-10 bg-gradient-to-b from-[#091528] to-[#060D19] flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06]">
+          <div className="lg:col-span-5 p-5 xs:p-7 sm:p-10 bg-gradient-to-b from-[#091528] to-[#060D19] flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06]">
             
             <div>
               {/* Top Pill / Badge */}
@@ -135,7 +135,7 @@ export default function LoginPage() {
           </div>
 
           {/* Right Column: Sign In Form */}
-          <div className="lg:col-span-7 p-8 sm:p-10 flex flex-col justify-center">
+          <div className="lg:col-span-7 p-5 xs:p-7 sm:p-10 flex flex-col justify-center">
             
             <div className="mb-6">
               <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-display">
@@ -224,7 +224,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50 cursor-pointer"
+                className="w-full min-h-[44px] py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-500 to-purple-600 hover:from-cyan-300 hover:to-purple-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(34,211,238,0.3)] transition-all disabled:opacity-50 cursor-pointer active:scale-[0.99]"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -262,7 +262,7 @@ export default function LoginPage() {
                     setErrorMsg(error.message);
                   }
                 }}
-                className="py-2.5 px-4 rounded-xl bg-[#050C17] border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="min-h-[44px] py-2.5 px-4 rounded-xl bg-[#050C17] border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95"
               >
                 <Github className="w-4 h-4 text-slate-400" />
                 <span>GitHub</span>
@@ -277,7 +277,7 @@ export default function LoginPage() {
                     setErrorMsg(error.message);
                   }
                 }}
-                className="py-2.5 px-4 rounded-xl bg-[#050C17] border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="min-h-[44px] py-2.5 px-4 rounded-xl bg-[#050C17] border border-slate-800 hover:border-slate-700 text-xs font-medium text-slate-300 flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95"
               >
                 <Chrome className="w-4 h-4 text-slate-400" />
                 <span>Google</span>

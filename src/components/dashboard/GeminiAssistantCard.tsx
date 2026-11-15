@@ -19,7 +19,7 @@ export default function GeminiAssistantCard() {
   };
 
   return (
-    <div id="gemini-copilot" className="rounded-2xl glass-panel-purple p-6 sm:p-8 border border-purple-500/30 shadow-2xl relative overflow-hidden">
+    <div id="gemini-copilot" className="rounded-2xl glass-panel-purple p-4 xs:p-6 sm:p-8 border border-purple-500/30 shadow-2xl relative overflow-hidden">
       {/* Background ambient purple light */}
       <div className="absolute top-0 right-0 w-80 h-80 bg-purple-600/10 blur-[100px] pointer-events-none -z-10" />
 

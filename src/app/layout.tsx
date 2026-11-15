@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -18,6 +18,13 @@ const geistMono = localFont({
   display: "swap",
   fallback: ["JetBrains Mono", "Cascadia Code", "Fira Code", "Consolas", "monospace"],
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#060D19",
+};
 
 export const metadata: Metadata = {
   title: "MALGUARD AI — AI Powered Malware Detection System",
