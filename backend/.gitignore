@@ -1,0 +1,41 @@
+# Python Virtual Environments
+venv/
+.venv/
+env/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment and Secret Files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+# Preserve safe example template
+!.env.example
+
+# ClamAV Vendor Binaries & Databases
+clamav/
+*.zip
+*.tar.gz
+
+# Logs
+*.log
+logs/
+
+# Sensitive Certificates & Keys
+*.pem
+*.key
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

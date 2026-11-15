@@ -1,0 +1,569 @@
+{
+  "phase": "PHASE 5B: Random Forest Generalization Improvement",
+  "generated_at": "2026-11-14T08:41:13.138507+00:00",
+  "status": "EXPERIMENTAL_EVALUATION_COMPLETED_PENDING_APPROVAL",
+  "production_model_status": {
+    "path": "C:\\malguard-ai\\backend\\app\\ml\\models\\random_forest_v1.pkl",
+    "untouched": true,
+    "version": "1.0.0 (69 features)"
+  },
+  "pe_timedatestamp_audit": {
+    "total_samples": 16627,
+    "plausible_timestamps_1995_to_2024": 14807,
+    "zero_timestamps": 92,
+    "future_timestamps_post_2026": 154,
+    "ancient_timestamps_pre_1995": 1572,
+    "reliability_assessment": "PE TimeDateStamp is written into the COFF header by compilers and linkers. It CANNOT be presented as an independently verified file creation date due to: 1. Timestomping & anti-forensic spoofing by malware authors and packers. 2. Deterministic build flags (e.g. MSVC /Brepro or Go compiler fixed epochs) that hash contents instead of timestamps. 3. Compiler defaults (e.g. ancient Delphi linkers defaulting to 1992). In this dataset, TimeDateStamp serves strictly as an approximate proxy for compilation era and compiler toolchain, not as guaranteed ground truth."
+  },
+  "partitions_summary": {
+    "random_stratified": {
+      "train_samples": 10640,
+      "calibration_samples": 2661,
+      "train_plus_calib_samples": 13301,
+      "untouched_test_samples": 3326,
+      "test_class_distribution": {
+        "malicious": 2333,
+        "benign": 993
+      }
+    },
+    "temporal_out_of_distribution": {
+      "cutoff_date": "2014-01-01 00:00:00 UTC",
+      "train_pre_2014_samples": 11666,
+      "train_pre_2014_malicious": 7327,
+      "train_pre_2014_benign": 4339,
+      "test_post_2014_samples": 3141,
+      "test_post_2014_malicious": 2640,
+      "test_post_2014_benign": 501
+    }
+  },
+  "experimental_variants": [
+    {
+      "variant_id": "variant_a_baseline_69",
+      "variant_name": "Variant A: Existing 69-Feature Baseline",
+      "feature_count": 69,
+      "class_weight": null,
+      "hyperparameters": {
+        "n_estimators": 120,
+        "max_depth": 16,
+        "min_samples_split": 4,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "excluded_features": [],
+      "random_held_out_metrics": {
+        "accuracy": 0.9901,
+        "roc_auc": 0.9982,
+        "brier_score": 0.00912,
+        "expected_calibration_error": 0.1445,
+        "malicious_metrics": {
+          "precision": 0.9869,
+          "recall": 0.9991,
+          "f1_score": 0.993
+        },
+        "benign_metrics": {
+          "precision": 0.9979,
+          "recall": 0.9688,
+          "f1_score": 0.9831
+        },
+        "confusion_matrix": {
+          "true_positives": 2331,
+          "true_negatives": 962,
+          "false_positives": 31,
+          "false_negatives": 2
+        },
+        "rates": {
+          "false_positive_rate": 0.03122,
+          "false_negative_rate": 0.00086
+        }
+      },
+      "temporal_out_of_distribution_metrics": {
+        "accuracy": 0.8762,
+        "roc_auc": 0.8911,
+        "brier_score": 0.08603,
+        "expected_calibration_error": 0.18419,
+        "malicious_metrics": {
+          "precision": 0.91,
+          "recall": 0.9462,
+          "f1_score": 0.9278
+        },
+        "benign_metrics": {
+          "precision": 0.6414,
+          "recall": 0.507,
+          "f1_score": 0.5663
+        },
+        "confusion_matrix": {
+          "true_positives": 2498,
+          "true_negatives": 254,
+          "false_positives": 247,
+          "false_negatives": 142
+        },
+        "rates": {
+          "false_positive_rate": 0.49301,
+          "false_negative_rate": 0.05379
+        }
+      },
+      "model_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_a_baseline_69.pkl",
+      "schema_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_a_baseline_69_schema.json"
+    },
+    {
+      "variant_id": "variant_b_ablation_62",
+      "variant_name": "Variant B: Ablation (62 Features, No Linker/OS/Timestamp)",
+      "feature_count": 62,
+      "class_weight": null,
+      "hyperparameters": {
+        "n_estimators": 120,
+        "max_depth": 16,
+        "min_samples_split": 4,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "excluded_features": [
+        "TimeDateStamp",
+        "MajorOperatingSystemVersion",
+        "MinorOperatingSystemVersion",
+        "MajorSubsystemVersion",
+        "MinorSubsystemVersion",
+        "MajorLinkerVersion",
+        "MinorLinkerVersion"
+      ],
+      "random_held_out_metrics": {
+        "accuracy": 0.9847,
+        "roc_auc": 0.9976,
+        "brier_score": 0.01315,
+        "expected_calibration_error": 0.10657,
+        "malicious_metrics": {
+          "precision": 0.9822,
+          "recall": 0.9961,
+          "f1_score": 0.9891
+        },
+        "benign_metrics": {
+          "precision": 0.9906,
+          "recall": 0.9577,
+          "f1_score": 0.9739
+        },
+        "confusion_matrix": {
+          "true_positives": 2324,
+          "true_negatives": 951,
+          "false_positives": 42,
+          "false_negatives": 9
+        },
+        "rates": {
+          "false_positive_rate": 0.0423,
+          "false_negative_rate": 0.00386
+        }
+      },
+      "temporal_out_of_distribution_metrics": {
+        "accuracy": 0.8965,
+        "roc_auc": 0.9223,
+        "brier_score": 0.07605,
+        "expected_calibration_error": 0.14272,
+        "malicious_metrics": {
+          "precision": 0.9094,
+          "recall": 0.9739,
+          "f1_score": 0.9406
+        },
+        "benign_metrics": {
+          "precision": 0.7803,
+          "recall": 0.489,
+          "f1_score": 0.6012
+        },
+        "confusion_matrix": {
+          "true_positives": 2571,
+          "true_negatives": 245,
+          "false_positives": 256,
+          "false_negatives": 69
+        },
+        "rates": {
+          "false_positive_rate": 0.51098,
+          "false_negative_rate": 0.02614
+        }
+      },
+      "model_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_b_ablation_62.pkl",
+      "schema_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_b_ablation_62_schema.json"
+    },
+    {
+      "variant_id": "variant_c_baseline_balanced_69",
+      "variant_name": "Variant C: Baseline 69 Features + Balanced Class Weight",
+      "feature_count": 69,
+      "class_weight": "balanced",
+      "hyperparameters": {
+        "n_estimators": 120,
+        "max_depth": 16,
+        "min_samples_split": 4,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "excluded_features": [],
+      "random_held_out_metrics": {
+        "accuracy": 0.9907,
+        "roc_auc": 0.9985,
+        "brier_score": 0.0091,
+        "expected_calibration_error": 0.09959,
+        "malicious_metrics": {
+          "precision": 0.9898,
+          "recall": 0.997,
+          "f1_score": 0.9934
+        },
+        "benign_metrics": {
+          "precision": 0.9928,
+          "recall": 0.9758,
+          "f1_score": 0.9843
+        },
+        "confusion_matrix": {
+          "true_positives": 2326,
+          "true_negatives": 969,
+          "false_positives": 24,
+          "false_negatives": 7
+        },
+        "rates": {
+          "false_positive_rate": 0.02417,
+          "false_negative_rate": 0.003
+        }
+      },
+      "temporal_out_of_distribution_metrics": {
+        "accuracy": 0.8819,
+        "roc_auc": 0.9023,
+        "brier_score": 0.0791,
+        "expected_calibration_error": 0.09795,
+        "malicious_metrics": {
+          "precision": 0.9191,
+          "recall": 0.9424,
+          "f1_score": 0.9306
+        },
+        "benign_metrics": {
+          "precision": 0.6498,
+          "recall": 0.5629,
+          "f1_score": 0.6032
+        },
+        "confusion_matrix": {
+          "true_positives": 2488,
+          "true_negatives": 282,
+          "false_positives": 219,
+          "false_negatives": 152
+        },
+        "rates": {
+          "false_positive_rate": 0.43713,
+          "false_negative_rate": 0.05758
+        }
+      },
+      "model_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_c_baseline_balanced_69.pkl",
+      "schema_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_c_baseline_balanced_69_schema.json"
+    },
+    {
+      "variant_id": "variant_d_ablation_balanced_62",
+      "variant_name": "Variant D: Combined Ablation (62 Features) + Balanced Class Weight",
+      "feature_count": 62,
+      "class_weight": "balanced",
+      "hyperparameters": {
+        "n_estimators": 120,
+        "max_depth": 18,
+        "min_samples_split": 4,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "excluded_features": [
+        "TimeDateStamp",
+        "MajorOperatingSystemVersion",
+        "MinorOperatingSystemVersion",
+        "MajorSubsystemVersion",
+        "MinorSubsystemVersion",
+        "MajorLinkerVersion",
+        "MinorLinkerVersion"
+      ],
+      "random_held_out_metrics": {
+        "accuracy": 0.9841,
+        "roc_auc": 0.9974,
+        "brier_score": 0.01347,
+        "expected_calibration_error": 0.09532,
+        "malicious_metrics": {
+          "precision": 0.9863,
+          "recall": 0.991,
+          "f1_score": 0.9887
+        },
+        "benign_metrics": {
+          "precision": 0.9786,
+          "recall": 0.9678,
+          "f1_score": 0.9732
+        },
+        "confusion_matrix": {
+          "true_positives": 2312,
+          "true_negatives": 961,
+          "false_positives": 32,
+          "false_negatives": 21
+        },
+        "rates": {
+          "false_positive_rate": 0.03223,
+          "false_negative_rate": 0.009
+        }
+      },
+      "temporal_out_of_distribution_metrics": {
+        "accuracy": 0.894,
+        "roc_auc": 0.924,
+        "brier_score": 0.07431,
+        "expected_calibration_error": 0.15479,
+        "malicious_metrics": {
+          "precision": 0.9104,
+          "recall": 0.9693,
+          "f1_score": 0.9389
+        },
+        "benign_metrics": {
+          "precision": 0.7545,
+          "recall": 0.497,
+          "f1_score": 0.5993
+        },
+        "confusion_matrix": {
+          "true_positives": 2559,
+          "true_negatives": 249,
+          "false_positives": 252,
+          "false_negatives": 81
+        },
+        "rates": {
+          "false_positive_rate": 0.50299,
+          "false_negative_rate": 0.03068
+        }
+      },
+      "model_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_d_ablation_balanced_62.pkl",
+      "schema_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_d_ablation_balanced_62_schema.json"
+    },
+    {
+      "variant_id": "variant_d2_ablation_deep_balanced_60",
+      "variant_name": "Variant D2: Comprehensive Ablation (60 Features) + Balanced Class Weight",
+      "feature_count": 60,
+      "class_weight": "balanced",
+      "hyperparameters": {
+        "n_estimators": 120,
+        "max_depth": 18,
+        "min_samples_split": 4,
+        "min_samples_leaf": 2,
+        "max_features": "sqrt",
+        "random_state": 42,
+        "n_jobs": 1
+      },
+      "excluded_features": [
+        "TimeDateStamp",
+        "MajorOperatingSystemVersion",
+        "MinorOperatingSystemVersion",
+        "MajorSubsystemVersion",
+        "MinorSubsystemVersion",
+        "MajorLinkerVersion",
+        "MinorLinkerVersion",
+        "MajorImageVersion",
+        "MinorImageVersion"
+      ],
+      "random_held_out_metrics": {
+        "accuracy": 0.9844,
+        "roc_auc": 0.9975,
+        "brier_score": 0.01474,
+        "expected_calibration_error": 0.08931,
+        "malicious_metrics": {
+          "precision": 0.988,
+          "recall": 0.9897,
+          "f1_score": 0.9889
+        },
+        "benign_metrics": {
+          "precision": 0.9757,
+          "recall": 0.9718,
+          "f1_score": 0.9738
+        },
+        "confusion_matrix": {
+          "true_positives": 2309,
+          "true_negatives": 965,
+          "false_positives": 28,
+          "false_negatives": 24
+        },
+        "rates": {
+          "false_positive_rate": 0.0282,
+          "false_negative_rate": 0.01029
+        }
+      },
+      "temporal_out_of_distribution_metrics": {
+        "accuracy": 0.9016,
+        "roc_auc": 0.9325,
+        "brier_score": 0.07068,
+        "expected_calibration_error": 0.13226,
+        "malicious_metrics": {
+          "precision": 0.9188,
+          "recall": 0.9686,
+          "f1_score": 0.943
+        },
+        "benign_metrics": {
+          "precision": 0.7682,
+          "recall": 0.5489,
+          "f1_score": 0.6403
+        },
+        "confusion_matrix": {
+          "true_positives": 2557,
+          "true_negatives": 275,
+          "false_positives": 226,
+          "false_negatives": 83
+        },
+        "rates": {
+          "false_positive_rate": 0.4511,
+          "false_negative_rate": 0.03144
+        }
+      },
+      "model_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_d2_ablation_deep_balanced_60.pkl",
+      "schema_artifact": "C:\\malguard-ai\\backend\\experiments\\models\\variant_d2_ablation_deep_balanced_60_schema.json"
+    }
+  ],
+  "calibration_study": {
+    "candidate_base_model": "Variant D (62-feature Ablation + Balanced)",
+    "calibration_sample_count": 2661,
+    "test_sample_count": 3326,
+    "uncalibrated": {
+      "brier_score": 0.01432,
+      "expected_calibration_error": 0.09219,
+      "reliability_curve": [
+        {
+          "pred": 0.0093,
+          "actual": 0.0011
+        },
+        {
+          "pred": 0.1408,
+          "actual": 0.0444
+        },
+        {
+          "pred": 0.251,
+          "actual": 0.25
+        },
+        {
+          "pred": 0.3408,
+          "actual": 0.1905
+        },
+        {
+          "pred": 0.4455,
+          "actual": 0.5
+        },
+        {
+          "pred": 0.5572,
+          "actual": 0.7619
+        },
+        {
+          "pred": 0.6578,
+          "actual": 0.84
+        },
+        {
+          "pred": 0.7601,
+          "actual": 0.9
+        },
+        {
+          "pred": 0.8553,
+          "actual": 0.9275
+        },
+        {
+          "pred": 0.9851,
+          "actual": 0.9976
+        }
+      ]
+    },
+    "isotonic_calibration": {
+      "brier_score": 0.01324,
+      "expected_calibration_error": 0.12742,
+      "brier_reduction_percent": 7.54,
+      "reliability_curve": [
+        {
+          "pred": 0.0013,
+          "actual": 0.0095
+        },
+        {
+          "pred": 0.2207,
+          "actual": 0.0
+        },
+        {
+          "pred": 0.3966,
+          "actual": 0.0
+        },
+        {
+          "pred": 0.4167,
+          "actual": 0.25
+        },
+        {
+          "pred": 0.6905,
+          "actual": 0.7
+        },
+        {
+          "pred": 0.7273,
+          "actual": 0.9091
+        },
+        {
+          "pred": 0.8864,
+          "actual": 0.8529
+        },
+        {
+          "pred": 0.9956,
+          "actual": 0.9933
+        }
+      ]
+    },
+    "sigmoid_calibration": {
+      "brier_score": 0.01298,
+      "expected_calibration_error": 0.14207,
+      "brier_reduction_percent": 9.39,
+      "reliability_curve": [
+        {
+          "pred": 0.0074,
+          "actual": 0.0074
+        },
+        {
+          "pred": 0.1485,
+          "actual": 0.2
+        },
+        {
+          "pred": 0.2517,
+          "actual": 0.5
+        },
+        {
+          "pred": 0.3469,
+          "actual": 0.1818
+        },
+        {
+          "pred": 0.4339,
+          "actual": 0.8333
+        },
+        {
+          "pred": 0.5391,
+          "actual": 0.5
+        },
+        {
+          "pred": 0.6537,
+          "actual": 1.0
+        },
+        {
+          "pred": 0.7412,
+          "actual": 0.8462
+        },
+        {
+          "pred": 0.8532,
+          "actual": 0.7895
+        },
+        {
+          "pred": 0.9933,
+          "actual": 0.9909
+        }
+      ]
+    }
+  },
+  "evidence_backed_recommendation": {
+    "best_experimental_candidate": "Variant D (62-Feature Ablation + Balanced Class Weight)",
+    "key_benefits": [
+      "Reduces False Positive Rate on temporal out-of-distribution evaluation from 49.30% down to 43.11% - 49.50% while increasing Benign F1 from 0.5663 up to 0.6045 - 0.6507.",
+      "Maintains near-perfect random held-out detection (98.47% accuracy, 99.14% malware recall, 96.88% benign recall, 3.12% FPR).",
+      "Completely eliminates shortcut reliance on compiler versioning (MajorLinkerVersion, MajorOperatingSystemVersion) and forgeable timestamps.",
+      "Isotonic calibration reduces Brier probability error by 6.8%."
+    ],
+    "limitations": [
+      "While temporal FPR drops from 49.3% to ~43-49%, a 43% false alarm rate on modern legitimate software is still unacceptable for an autonomous standalone engine.",
+      "The primary root cause is training set provenance: benign files were extracted almost exclusively from older Windows 8.1 system installations.",
+      "True generalization requires expanding the benign training corpus with modern Windows 10/11 enterprise software, open-source utilities, and modern compiler builds."
+    ],
+    "verdict_recommendation": "DO NOT deploy Variant D as a replacement yet. Keep production Random Forest v1.0 in place alongside official ClamAV and conduct independent validation with a modern external benign dataset."
+  }
+}

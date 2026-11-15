@@ -1,0 +1,143 @@
+{
+  "model_version": "1.0.0",
+  "dataset_name": "PE Files Malware Dataset (VirusShare + Clean Windows PE)",
+  "dataset_source": "Kaggle / VirusShare PE Static Analysis Repository",
+  "total_samples": 16627,
+  "train_samples": 13301,
+  "test_samples": 3326,
+  "benign_samples": 4962,
+  "malware_samples": 11665,
+  "evaluation_metrics": {
+    "accuracy": 0.9901,
+    "roc_auc": 0.9982,
+    "oob_score": 0.9902,
+    "macro_avg": {
+      "precision": 0.9924,
+      "recall": 0.984,
+      "f1_score": 0.9881
+    },
+    "malware_class": {
+      "precision": 0.9869,
+      "recall": 0.9991,
+      "f1_score": 0.993
+    },
+    "benign_class": {
+      "precision": 0.9979,
+      "recall": 0.9688,
+      "f1_score": 0.9831
+    },
+    "confusion_matrix": {
+      "true_negatives": 962,
+      "false_positives": 31,
+      "false_negatives": 2,
+      "true_positives": 2331
+    },
+    "rates": {
+      "false_positive_rate": 0.03122,
+      "false_negative_rate": 0.00086
+    }
+  },
+  "top_features": [
+    {
+      "rank": 1,
+      "name": "MajorLinkerVersion",
+      "importance": 0.10159
+    },
+    {
+      "rank": 2,
+      "name": "MajorOperatingSystemVersion",
+      "importance": 0.08773
+    },
+    {
+      "rank": 3,
+      "name": "MajorSubsystemVersion",
+      "importance": 0.08618
+    },
+    {
+      "rank": 4,
+      "name": "MinorOperatingSystemVersion",
+      "importance": 0.08428
+    },
+    {
+      "rank": 5,
+      "name": "TimeDateStamp",
+      "importance": 0.05697
+    },
+    {
+      "rank": 6,
+      "name": "MinorSubsystemVersion",
+      "importance": 0.05384
+    },
+    {
+      "rank": 7,
+      "name": "SizeOfStackReserve",
+      "importance": 0.05294
+    },
+    {
+      "rank": 8,
+      "name": "ImageBase",
+      "importance": 0.05211
+    },
+    {
+      "rank": 9,
+      "name": "Subsystem",
+      "importance": 0.04902
+    },
+    {
+      "rank": 10,
+      "name": "MinorImageVersion",
+      "importance": 0.03854
+    },
+    {
+      "rank": 11,
+      "name": "Characteristics",
+      "importance": 0.03725
+    },
+    {
+      "rank": 12,
+      "name": "SizeOfInitializedData",
+      "importance": 0.02993
+    },
+    {
+      "rank": 13,
+      "name": "DllCharacteristics",
+      "importance": 0.02884
+    },
+    {
+      "rank": 14,
+      "name": "ImageDirectoryEntryExport",
+      "importance": 0.01727
+    },
+    {
+      "rank": 15,
+      "name": "DirectoryEntryExport",
+      "importance": 0.01692
+    },
+    {
+      "rank": 16,
+      "name": "MajorImageVersion",
+      "importance": 0.0166
+    },
+    {
+      "rank": 17,
+      "name": "DirectoryEntryImportSize",
+      "importance": 0.0134
+    },
+    {
+      "rank": 18,
+      "name": "CheckSum",
+      "importance": 0.01338
+    },
+    {
+      "rank": 19,
+      "name": "SectionMinVirtualsize",
+      "importance": 0.01207
+    },
+    {
+      "rank": 20,
+      "name": "SizeOfHeaders",
+      "importance": 0.01206
+    }
+  ],
+  "trained_at": "2026-11-13T12:40:23.110589+00:00"
+}

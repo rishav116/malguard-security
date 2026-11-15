@@ -1,0 +1,361 @@
+{
+  "phase": "PHASE 5C: Modern Benign Dataset & Independent Validation",
+  "generated_at": "2026-11-14T08:52:50.363690+00:00",
+  "total_verified_benign_samples": 65,
+  "dataset_manifest_path": "C:\\malguard-ai\\backend\\experiments\\data\\independent_benign_manifest.json",
+  "clamav_independent_results": {
+    "total_scanned": 65,
+    "clean_count": 59,
+    "signature_matches": 0,
+    "false_positive_rate": 0.0
+  },
+  "model_performance_comparison": {
+    "prod_rf_v1_0": {
+      "model_name": "Production Random Forest v1.0 (69 feats)",
+      "feature_count": 69,
+      "total_samples": 65,
+      "true_negatives": 65,
+      "false_positives": 0,
+      "false_positive_rate": 0.0,
+      "specificity_tnr": 1.0,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 30,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 5,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 2,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 3,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "variant_a_baseline_69": {
+      "model_name": "Variant A: Baseline (69 feats)",
+      "feature_count": 69,
+      "total_samples": 65,
+      "true_negatives": 65,
+      "false_positives": 0,
+      "false_positive_rate": 0.0,
+      "specificity_tnr": 1.0,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 30,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 5,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 2,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 3,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "variant_b_ablation_62": {
+      "model_name": "Variant B: Ablation (62 feats)",
+      "feature_count": 62,
+      "total_samples": 65,
+      "true_negatives": 59,
+      "false_positives": 6,
+      "false_positive_rate": 0.0923,
+      "specificity_tnr": 0.9077,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 29,
+          "false_positives": 1,
+          "false_positive_rate": 0.0333
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 3,
+          "false_positives": 2,
+          "false_positive_rate": 0.4
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 0,
+          "false_positives": 2,
+          "false_positive_rate": 1.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 2,
+          "false_positives": 1,
+          "false_positive_rate": 0.3333
+        }
+      }
+    },
+    "variant_c_balanced_69": {
+      "model_name": "Variant C: Baseline Balanced (69 feats)",
+      "feature_count": 69,
+      "total_samples": 65,
+      "true_negatives": 65,
+      "false_positives": 0,
+      "false_positive_rate": 0.0,
+      "specificity_tnr": 1.0,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 30,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 5,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 2,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 3,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "variant_d_ablation_balanced_62": {
+      "model_name": "Variant D: Ablation Balanced (62 feats)",
+      "feature_count": 62,
+      "total_samples": 65,
+      "true_negatives": 56,
+      "false_positives": 9,
+      "false_positive_rate": 0.1385,
+      "specificity_tnr": 0.8615,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 26,
+          "false_positives": 4,
+          "false_positive_rate": 0.1333
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 3,
+          "false_positives": 2,
+          "false_positive_rate": 0.4
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 0,
+          "false_positives": 2,
+          "false_positive_rate": 1.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 2,
+          "false_positives": 1,
+          "false_positive_rate": 0.3333
+        }
+      }
+    },
+    "variant_d2_deep_balanced_60": {
+      "model_name": "Variant D2: Deep Ablation Balanced (60 feats)",
+      "feature_count": 60,
+      "total_samples": 65,
+      "true_negatives": 61,
+      "false_positives": 4,
+      "false_positive_rate": 0.0615,
+      "specificity_tnr": 0.9385,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 29,
+          "false_positives": 1,
+          "false_positive_rate": 0.0333
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 15,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 10,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 4,
+          "false_positives": 1,
+          "false_positive_rate": 0.2
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 0,
+          "false_positives": 2,
+          "false_positive_rate": 1.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 3,
+          "false_positives": 0,
+          "false_positive_rate": 0.0
+        }
+      }
+    },
+    "variant_e_calibrated": {
+      "model_name": "Variant E: Calibrated Candidate (Isotonic on Var D)",
+      "feature_count": 62,
+      "total_samples": 65,
+      "true_negatives": 36,
+      "false_positives": 29,
+      "false_positive_rate": 0.4462,
+      "specificity_tnr": 0.5538,
+      "category_performance": {
+        "Windows 10/11 OS Utilities": {
+          "total": 30,
+          "true_negatives": 14,
+          "false_positives": 16,
+          "false_positive_rate": 0.5333
+        },
+        "Windows System DLLs": {
+          "total": 15,
+          "true_negatives": 12,
+          "false_positives": 3,
+          "false_positive_rate": 0.2
+        },
+        "SysWOW64 32-bit Binaries": {
+          "total": 10,
+          "true_negatives": 7,
+          "false_positives": 3,
+          "false_positive_rate": 0.3
+        },
+        "Developer Runtimes & CLIs": {
+          "total": 5,
+          "true_negatives": 2,
+          "false_positives": 3,
+          "false_positive_rate": 0.6
+        },
+        "Browsers & Desktop Apps": {
+          "total": 2,
+          "true_negatives": 0,
+          "false_positives": 2,
+          "false_positive_rate": 1.0
+        },
+        "Subsystem & Virtualization": {
+          "total": 3,
+          "true_negatives": 1,
+          "false_positives": 2,
+          "false_positive_rate": 0.6667
+        }
+      }
+    }
+  },
+  "production_combined_verdict_behavior": {
+    "verdict_distribution": {
+      "NO_THREAT_DETECTED": 65,
+      "SUSPICIOUS": 0,
+      "INCONCLUSIVE": 0,
+      "MALICIOUS": 0
+    },
+    "safety_invariant_verified": "No file was ever classified as MALICIOUS (which strictly requires ClamAV match).",
+    "false_alarms_escalated_to_suspicious": 0
+  },
+  "notable_false_positive_samples": [],
+  "key_findings": [
+    "The production Random Forest v1.0 has a False Positive Rate of 0.00% (0/65) on independently collected modern Windows 10/11 binaries.",
+    "Variant C (Baseline 69 with balanced class weights) achieved the lowest False Positive Rate at 0.00% (0/65).",
+    "Ablation variants (B, D, D2) completely eliminating version/timestamp shortcuts had higher FPR on this modern dataset because the remaining structural features (entropy, sections, rawsize) overlap with packed modern runtimes (e.g. Node.js, Chrome, VSCode).",
+    "Official ClamAV achieved 0% false positives across all tested legitimate binaries.",
+    "Under MALGUARD AI's conservative verdict rules, 0% of legitimate binaries received a MALICIOUS verdict. Disagreements where ML predicted malicious were safely capped at SUSPICIOUS."
+  ]
+}
