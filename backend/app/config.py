@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     API_V1_PREFIX: str = "/api/v1"
     
     # CORS Configuration: comma-separated URLs or list
-    CORS_ORIGINS: List[str] = Field(
+    CORS_ORIGINS: Union[str, List[str]] = Field(
         default=[
             "http://localhost:3000",
             "http://127.0.0.1:3000",
@@ -23,22 +23,48 @@ class Settings(BaseSettings):
         validation_alias="CORS_ORIGINS"
     )
 
-    @field_validator("CORS_ORIGINS", mode="before")
+    @field_validator("CORS_ORIGINS", mode="after")
     @classmethod
     def parse_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        default_origins = [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:8000",
+            "http://127.0.0.1:8000",
+            "https://malguard-ai-amber.vercel.app",
+        ]
         if isinstance(v, str):
-            if not v.strip():
-                return ["http://localhost:3000", "http://127.0.0.1:3000"]
-            if v.strip() == "*":
+            v_str = v.strip()
+            if not v_str:
+                return default_origins
+            if v_str == "*":
                 return ["*"]
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
+            import json
+            if v_str.startswith("[") and v_str.endswith("]"):
+                try:
+                    parsed = json.loads(v_str)
+                    if isinstance(parsed, list):
+                        return [str(origin).strip() for origin in parsed if str(origin).strip()]
+                except Exception:
+                    pass
+            return [origin.strip() for origin in v_str.split(",") if origin.strip()]
         elif isinstance(v, list):
-            return v
-        return ["http://localhost:3000", "http://127.0.0.1:3000"]
+            return [str(origin).strip() for origin in v if str(origin).strip()]
+        return default_origins
     
     # Upload limits
     MAX_FILE_SIZE_BYTES: int = 10 * 1024 * 1024  # 10 MB limit
-    ALLOWED_EXTENSIONS: List[str] = [".exe", ".dll"]
+    ALLOWED_EXTENSIONS: Union[str, List[str]] = Field(
+        default=[".exe", ".dll"],
+        validation_alias="ALLOWED_EXTENSIONS"
+    )
+
+    @field_validator("ALLOWED_EXTENSIONS", mode="after")
+    @classmethod
+    def parse_allowed_extensions(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            return [ext.strip() for ext in v.split(",") if ext.strip()]
+        return v
     
     # Supabase Configuration for JWT Validation
     SUPABASE_URL: str = Field(default="", validation_alias="SUPABASE_URL")
