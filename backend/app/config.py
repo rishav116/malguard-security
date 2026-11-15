@@ -18,6 +18,7 @@ class Settings(BaseSettings):
             "http://127.0.0.1:3000",
             "http://localhost:8000",
             "http://127.0.0.1:8000",
+            "https://malguard-ai-amber.vercel.app",
         ],
         validation_alias="CORS_ORIGINS"
     )

@@ -21,6 +21,11 @@ function getCandidateBaseUrls(): string[] {
     return [configured];
   }
 
+  // When deployed in production without explicit NEXT_PUBLIC_FASTAPI_URL, route to same-origin Vercel service
+  if (typeof window !== "undefined" && !isLocalhost && window.location.origin) {
+    return [window.location.origin];
+  }
+
   return ["http://localhost:8000", "http://127.0.0.1:8000"];
 }
 

@@ -81,11 +81,21 @@ function getFastApiCandidates(): string[] {
     return [configured];
   }
 
+  // When deployed in production without explicit NEXT_PUBLIC_FASTAPI_URL, route to same-origin Vercel service
+  if (typeof window !== "undefined" && !isLocalhost && window.location.origin) {
+    return [window.location.origin];
+  }
+
   return ["http://127.0.0.1:8000", "http://localhost:8000"];
 }
 
 const FASTAPI_BASE_URL =
-  process.env.NEXT_PUBLIC_FASTAPI_URL?.trim().replace(/\/+$/, "") || "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_FASTAPI_URL?.trim().replace(/\/+$/, "") ||
+  (typeof window !== "undefined" &&
+  window.location.hostname !== "localhost" &&
+  window.location.hostname !== "127.0.0.1"
+    ? window.location.origin
+    : "http://127.0.0.1:8000");
 
 /**
  * Probes the FastAPI detection engine health endpoint.
@@ -190,6 +200,13 @@ export async function submitBinaryForScan(
     });
 
     if (!response.ok) {
+      if (response.status === 413) {
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        return {
+          success: false,
+          error: `Payload Limit Exceeded (413): The uploaded binary (${sizeMb} MB) exceeds Vercel's 4.5 MB Function request payload limit. Client-side PE headers, section entropy, and SHA-256 fingerprinting remain fully intact in your inspection report. For cloud ML scanning of files > 4.5 MB up to 10 MB, direct storage upload or a dedicated backend service is recommended.`,
+        };
+      }
       const errText = await response.text();
       return {
         success: false,
