@@ -35,6 +35,12 @@ RUN sed -i 's/^#TCPSocket 3310/TCPSocket 3310/' /etc/clamav/clamd.conf && \
     sed -i 's/^StreamMaxLength .*/StreamMaxLength 25M/' /etc/clamav/clamd.conf && \
     sed -i 's/^MaxScanSize .*/MaxScanSize 100M/' /etc/clamav/clamd.conf && \
     sed -i 's/^MaxFileSize .*/MaxFileSize 25M/' /etc/clamav/clamd.conf && \
+<<<<<<< Updated upstream
+=======
+    sed -i 's/^MaxThreads .*/MaxThreads 2/' /etc/clamav/clamd.conf && \
+    echo "MaxThreads 2" >> /etc/clamav/clamd.conf && \
+    echo "ConcurrentDatabaseReload no" >> /etc/clamav/clamd.conf && \
+>>>>>>> Stashed changes
     mkdir -p /var/run/clamav /var/log/clamav /var/lib/clamav && \
     chown -R clamav:clamav /var/run/clamav /var/log/clamav /var/lib/clamav
 

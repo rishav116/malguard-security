@@ -19,7 +19,14 @@ def get_health():
         else:
             clamav_desc = f"online (Development-only EICAR test daemon — NOT production ClamAV: {version_info})"
     else:
-        clamav_desc = "offline / unavailable"
+        if clamav_service.is_starting():
+            clamav_desc = "starting / initializing (loading signatures into memory)"
+        else:
+            failed, fail_reason = clamav_service.is_failed()
+            if failed:
+                clamav_desc = f"offline / failed ({fail_reason})"
+            else:
+                clamav_desc = "offline / unavailable"
 
     return HealthResponse(
         status="online",

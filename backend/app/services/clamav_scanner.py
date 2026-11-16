@@ -99,6 +99,28 @@ class ClamAVScanner:
 
         return True, False, f"Unverified daemon ({version})"
 
+    def is_starting(self) -> bool:
+        """Checks if clamd daemon is actively initializing signatures."""
+        import os, tempfile
+        tmp_dir = tempfile.gettempdir()
+        return (
+            os.path.exists("/var/run/clamav/clamd.starting")
+            or os.path.exists("/tmp/clamd.starting")
+            or os.path.exists(os.path.join(tmp_dir, "clamd.starting"))
+        )
+
+    def is_failed(self) -> tuple[bool, str]:
+        """Checks if clamd daemon encountered a startup failure or crash."""
+        import os, tempfile
+        tmp_dir = tempfile.gettempdir()
+        for path in ["/var/run/clamav/clamd.failed", "/tmp/clamd.failed", os.path.join(tmp_dir, "clamd.failed")]:
+            if os.path.exists(path):
+                return True, "Process exited unexpectedly during startup"
+        for path in ["/var/run/clamav/clamd.timeout", "/tmp/clamd.timeout", os.path.join(tmp_dir, "clamd.timeout")]:
+            if os.path.exists(path):
+                return True, "Startup timed out (>60s)"
+        return False, ""
+
     def scan_stream(self, data: bytes) -> ClamAVResult:
         """Streams raw bytes to clamd via zINSTREAM protocol."""
         start_time = time.perf_counter()
