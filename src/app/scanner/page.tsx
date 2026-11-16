@@ -113,6 +113,21 @@ export default function ScannerPage() {
     };
   }, []);
 
+  // Automatic readiness polling when security engine is warming up (cold start)
+  useEffect(() => {
+    if (!engineStatus.isWarmingUp) return;
+
+    const intervalId = setInterval(async () => {
+      const latest = await checkDetectionEngineHealth();
+      setEngineStatus(latest);
+      if (!latest.isWarmingUp) {
+        clearInterval(intervalId);
+      }
+    }, 2500);
+
+    return () => clearInterval(intervalId);
+  }, [engineStatus.isWarmingUp]);
+
   // Handler for file drop / selection
   const handleFileSelected = useCallback(async (file: File) => {
     setSelectedFile(file);

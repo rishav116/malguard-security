@@ -13,6 +13,12 @@ export interface DetectionEngineStatus {
   supportedEngines?: string[];
   latencyMs?: number;
   lastChecked: string;
+  clamavState?: "online" | "starting" | "offline" | "failed";
+  clamavDesc?: string;
+  clamavVersion?: string;
+  isWarmingUp?: boolean;
+  containerUptimeSec?: number;
+  isReadyForScan?: boolean;
 }
 
 export interface FastAPIScanResponse {
@@ -126,18 +132,62 @@ export async function checkDetectionEngineHealth(): Promise<DetectionEngineStatu
 
       if (response.ok) {
         const data = await response.json();
+        const clamavDaemonDesc = data.engines?.clamav_daemon || "";
+        const diag = data.diagnostics || {};
+        const uptime = typeof diag.container_uptime_sec === "number" ? diag.container_uptime_sec : 0;
+        
+        const descLower = clamavDaemonDesc.toLowerCase();
+        const isStarting = 
+          descLower.includes("starting") || 
+          descLower.includes("initializing") ||
+          diag.flags?.starting === true;
+        const isOnline = 
+          descLower.includes("online") || 
+          diag.clamav_socket?.ping_ok === true;
+        const isFailed = 
+          descLower.includes("failed") || 
+          diag.flags?.failed === true;
+
+        let clamavState: "online" | "starting" | "offline" | "failed" = "offline";
+        let isWarmingUp = false;
+        let isReadyForScan = true;
+        let displayMessage = "Detection Engine is online and ready for binary classification.";
+
+        if (isStarting) {
+          clamavState = "starting";
+          isWarmingUp = true;
+          isReadyForScan = false;
+          displayMessage = `Initializing Security Engine: Loading official ClamAV signature database into memory (${uptime.toFixed(1)}s elapsed; ready in ~15-20s)...`;
+        } else if (isOnline) {
+          clamavState = "online";
+          isWarmingUp = false;
+          isReadyForScan = true;
+          displayMessage = `Security engines verified: ${clamavDaemonDesc}`;
+        } else if (isFailed) {
+          clamavState = "failed";
+          isWarmingUp = false;
+          isReadyForScan = false;
+          displayMessage = "ClamAV engine encountered a startup error.";
+        }
+
         return {
           connected: true,
           endpoint: baseUrl,
-          message: "Detection Engine is online and ready for binary classification.",
+          message: displayMessage,
           version: data.version || "1.0.0",
-          supportedEngines: data.supported_engines || [
+          supportedEngines: [
             "Random Forest PE Classifier",
             "ClamAV Signature Engine",
             "Gemini Security Reasoner",
           ],
           latencyMs,
           lastChecked: timestamp,
+          clamavState,
+          clamavDesc: clamavDaemonDesc,
+          clamavVersion: diag.clamav_socket?.version || data.engines?.clamav_daemon,
+          isWarmingUp,
+          containerUptimeSec: uptime,
+          isReadyForScan,
         };
       }
     } catch {

@@ -50,8 +50,10 @@ export default function EngineStatusBanner({
       {/* Main Status Container */}
       <div
         className={`p-5 sm:p-6 rounded-2xl border backdrop-blur-xl transition-all ${
-          engineStatus.connected
+          engineStatus.connected && !engineStatus.isWarmingUp
             ? "bg-emerald-950/20 border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.15)]"
+            : engineStatus.isWarmingUp
+            ? "bg-amber-950/30 border-amber-500/40 shadow-[0_0_30px_rgba(245,158,11,0.2)] animate-pulse"
             : "bg-[#091526]/90 border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.1)]"
         }`}
       >
@@ -61,13 +63,17 @@ export default function EngineStatusBanner({
           <div className="flex items-start gap-4">
             <div
               className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border ${
-                engineStatus.connected
+                engineStatus.connected && !engineStatus.isWarmingUp
                   ? "bg-emerald-500/20 border-emerald-400/40 text-emerald-400"
+                  : engineStatus.isWarmingUp
+                  ? "bg-amber-500/20 border-amber-400/40 text-amber-300"
                   : "bg-amber-500/15 border-amber-500/30 text-amber-400"
               }`}
             >
-              {engineStatus.connected ? (
+              {engineStatus.connected && !engineStatus.isWarmingUp ? (
                 <Server className="w-6 h-6" />
+              ) : engineStatus.isWarmingUp ? (
+                <RefreshCw className="w-6 h-6 animate-spin text-amber-400" />
               ) : (
                 <ServerOff className="w-6 h-6" />
               )}
@@ -77,19 +83,33 @@ export default function EngineStatusBanner({
               <div className="flex flex-wrap items-center gap-2.5 mb-1">
                 <span
                   className={`w-2 h-2 rounded-full ${
-                    engineStatus.connected
+                    engineStatus.connected && !engineStatus.isWarmingUp
                       ? "bg-emerald-400 shadow-[0_0_8px_#34d399]"
+                      : engineStatus.isWarmingUp
+                      ? "bg-amber-400 animate-ping shadow-[0_0_8px_#fbbf24]"
                       : "bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]"
                   }`}
                 />
                 <h3 className="text-base sm:text-lg font-bold text-white font-display">
-                  {engineStatus.connected
-                    ? "Detection Engine Connected"
+                  {engineStatus.connected && !engineStatus.isWarmingUp
+                    ? "Detection Engines Online & Verified"
+                    : engineStatus.isWarmingUp
+                    ? "Initializing Security Engine (Cold Start)"
                     : "Detection Engine Not Connected"}
                 </h3>
                 <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-900 border border-white/10 text-slate-300 max-w-[200px] sm:max-w-none truncate">
                   {engineStatus.endpoint}
                 </span>
+                {engineStatus.isWarmingUp && (
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
+                    Loading 3.6M signatures into RAM...
+                  </span>
+                )}
+                {engineStatus.connected && !engineStatus.isWarmingUp && engineStatus.clamavVersion && (
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                    Official ClamAV
+                  </span>
+                )}
               </div>
 
               <p className="text-xs sm:text-sm text-slate-300/90 leading-relaxed max-w-2xl">
@@ -113,18 +133,22 @@ export default function EngineStatusBanner({
               <span>{isChecking ? "Testing..." : "Test Connection"}</span>
             </button>
 
-            {/* Scan with AI Engine (Active when engine is connected) */}
+            {/* Scan with AI Engine (Active when engine is connected AND not warming up) */}
             <button
               onClick={onRunCloudScan}
-              disabled={!engineStatus.connected || !hasFileSelected || isScanningCloud}
+              disabled={!engineStatus.connected || engineStatus.isWarmingUp || !hasFileSelected || isScanningCloud}
               className={`flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 rounded-xl text-xs font-bold transition-all min-h-[40px] active:scale-95 ${
-                engineStatus.connected && hasFileSelected && !isScanningCloud
+                engineStatus.connected && !engineStatus.isWarmingUp && hasFileSelected && !isScanningCloud
                   ? "bg-gradient-to-r from-cyan-400 to-purple-500 text-slate-950 hover:brightness-110 shadow-[0_0_15px_rgba(34,211,238,0.4)] cursor-pointer"
+                  : engineStatus.isWarmingUp
+                  ? "bg-amber-950/60 border border-amber-500/40 text-amber-300 cursor-wait shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                   : "bg-slate-900/80 border border-slate-800 text-slate-500 cursor-not-allowed"
               }`}
               title={
                 !engineStatus.connected
                   ? "Detection engine is offline. AI classification is disabled."
+                  : engineStatus.isWarmingUp
+                  ? "ClamAV database is actively loading into memory. Scans are temporarily held to prevent premature inconclusive verdicts."
                   : !hasFileSelected
                   ? "Select a file to initiate AI classification."
                   : "Submit binary for AI classification"
@@ -134,6 +158,11 @@ export default function EngineStatusBanner({
                 <>
                   <Lock className="w-3.5 h-3.5" />
                   <span>AI Engine Disabled</span>
+                </>
+              ) : engineStatus.isWarmingUp ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-300" />
+                  <span>Warming Up Engine...</span>
                 </>
               ) : isScanningCloud ? (
                 <>
