@@ -27,23 +27,12 @@ async def get_health():
         else:
             clamav_desc = "online (Daemon responding, VERSION unverified)"
     else:
-<<<<<<< Updated upstream
-        if clamav_service.is_starting():
-            clamav_desc = "starting / initializing (loading signatures into memory)"
-        else:
-            failed, fail_reason = clamav_service.is_failed()
-            if failed:
-                clamav_desc = f"offline / failed ({fail_reason})"
-            else:
-                clamav_desc = "offline / unavailable"
-=======
         if diag["flags"].get("starting") or (diag.get("is_cold_start") and not diag["flags"].get("failed")):
             clamav_desc = f"starting / initializing (loading signatures into memory; uptime: {diag['container_uptime_sec']}s)"
         elif diag["flags"].get("failed"):
             clamav_desc = "offline / failed (clamd process failed during initialization)"
         else:
             clamav_desc = f"offline / unavailable ({socket_err or 'Connection refused'})"
->>>>>>> Stashed changes
 
     return HealthResponse(
         status="online",
@@ -57,4 +46,3 @@ async def get_health():
         },
         diagnostics=diag
     )
-
