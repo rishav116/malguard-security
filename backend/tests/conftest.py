@@ -57,8 +57,9 @@ def generate_minimal_valid_pe() -> bytes:
     return bytes(buf)
 
 @pytest.fixture(scope="session")
-def client() -> TestClient:
-    return TestClient(app)
+def client():
+    with TestClient(app) as c:
+        yield c
 
 @pytest.fixture
 def auth_client() -> TestClient:

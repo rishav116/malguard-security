@@ -1,3 +1,5 @@
+import { supabase } from "@/lib/supabase/client";
+
 /**
  * MALGUARD AI — Detection Engine Service
  * Prepares client-to-backend communication for the future FastAPI ML/Signature engine.
@@ -179,6 +181,43 @@ export async function submitBinaryForScan(
   const endpoint = `${health.endpoint}/api/v1/scan`;
 
   try {
+    // For files > 4.0 MB (up to 10 MB), direct upload to private Supabase Storage bypasses Vercel's 4.5 MB Function payload limit (accounting for multipart boundary overhead)
+    if (file.size > 4.0 * 1024 * 1024) {
+      try {
+        const storagePath = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("malguard-quarantine")
+          .upload(storagePath, file, { upsert: false });
+
+        if (!uploadError && uploadData) {
+          const storageEndpoint = `${health.endpoint}/api/v1/scan/storage`;
+          const storageResp = await fetch(storageEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            },
+            body: JSON.stringify({
+              storage_path: storagePath,
+              file_name: file.name,
+              sha256: metadata.sha256,
+            }),
+          });
+
+          if (storageResp.ok) {
+            const data: FastAPIScanResponse = await storageResp.json();
+            return {
+              success: true,
+              data,
+            };
+          }
+        }
+      } catch (storageErr) {
+        console.warn("Direct storage upload fallback to direct dispatch:", storageErr);
+      }
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("sha256", metadata.sha256);

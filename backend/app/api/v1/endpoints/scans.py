@@ -1,4 +1,5 @@
 import uuid
+import httpx
 from typing import List, Dict, Any, Optional
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Request
 from app.config import settings
@@ -8,6 +9,7 @@ from app.core.logging import logger
 from app.models.schemas import (
     ScanResponse,
     VerdictEnum,
+    StorageScanRequest,
 )
 from app.services.pe_analyzer import analyze_pe_binary
 from app.services.clamav_scanner import clamav_service
@@ -29,20 +31,12 @@ def extract_bearer_token(request: Request) -> Optional[str]:
         return auth_header.replace("Bearer ", "").strip()
     return None
 
-@router.post("/scans", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
-@router.post("/scan", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
-async def create_scan(
-    request: Request,
-    file: UploadFile = File(..., description="Windows PE binary (.exe or .dll, max 10 MB)"),
-    current_user: UserIdentity = Depends(get_current_user)
-):
-    """
-    Submits a Windows PE binary for isolated static analysis, cryptographic fingerprinting,
-    ClamAV signature scanning, and ML classification.
-    Requires an authenticated user session (Supabase JWT or authorized demo token).
-    Persists scan results to Supabase PostgreSQL without saving binary payload.
-    """
-    filename = file.filename or "unknown_binary"
+async def _execute_scan_pipeline(
+    binary_data: bytes,
+    filename: str,
+    current_user: UserIdentity,
+    request: Request
+) -> ScanResponse:
     lower_name = filename.lower()
     
     # 1. Extension validation
@@ -52,26 +46,14 @@ async def create_scan(
             detail=f"Unsupported file format: '{filename}'. Only Windows PE binaries (.exe, .dll) are accepted."
         )
 
-    # 2. Size-controlled read (Max 10 MB)
-    max_bytes = settings.MAX_FILE_SIZE_BYTES
-    content = bytearray()
-    chunk_size = 64 * 1024  # 64 KB chunks
-    
-    while True:
-        chunk = await file.read(chunk_size)
-        if not chunk:
-            break
-        content.extend(chunk)
-        if len(content) > max_bytes:
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File exceeds maximum allowed size of 10 MB ({format_bytes(len(content))} received)."
-            )
+    total_bytes = len(binary_data)
+    if total_bytes > settings.MAX_FILE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"File exceeds maximum allowed size of 10 MB ({format_bytes(total_bytes)} received)."
+        )
 
-    total_bytes = len(content)
-    binary_data = bytes(content)
-
-    # 3. PE Magic Bytes Verification (MZ header + PE offset check)
+    # 2. PE Magic Bytes Verification (MZ header + PE offset check)
     try:
         validate_pe_magic_bytes(binary_data)
     except PEValidationError as e:
@@ -81,12 +63,12 @@ async def create_scan(
             detail=f"Invalid Windows PE structure: {str(e)}"
         )
 
-    # 4. Cryptographic Hashing
+    # 3. Cryptographic Hashing
     hashes = compute_hashes(binary_data)
     scan_id = str(uuid.uuid4())
     logger.info(f"Initiated scan {scan_id} for '{filename}' ({hashes['sha256']}) by owner {current_user.user_id}")
 
-    # 5. Static PE Analysis via pefile
+    # 4. Static PE Analysis via pefile
     try:
         pe_analysis = analyze_pe_binary(binary_data)
     except ValueError as e:
@@ -96,13 +78,13 @@ async def create_scan(
             detail=f"Unable to parse PE headers: {str(e)}"
         )
 
-    # 6. Isolated ClamAV Signature Scan
+    # 5. Isolated ClamAV Signature Scan
     clamav_result = clamav_service.scan_stream(binary_data)
 
-    # 7. Machine Learning Inference (Random Forest)
+    # 6. Machine Learning Inference (Random Forest)
     ml_result = ml_service.predict(pe_data=pe_analysis, file_size=total_bytes, raw_bytes=binary_data)
 
-    # 8. Synthesize Conservative Verdict
+    # 7. Synthesize Conservative Verdict
     verdict_reasons: List[str] = []
     
     if clamav_result.matched:
@@ -146,11 +128,111 @@ async def create_scan(
         pipeline_status="completed"
     )
 
-    # 9. Persistent Storage in Supabase PostgreSQL (Never stores binary contents)
+    # 8. Persistent Storage in Supabase PostgreSQL (Never stores binary contents)
     raw_token = extract_bearer_token(request)
     await scan_repository.save_scan(scan_response, user_id=current_user.user_id, raw_token=raw_token)
 
     return scan_response
+
+@router.post("/scans", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/scan", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
+async def create_scan(
+    request: Request,
+    file: UploadFile = File(..., description="Windows PE binary (.exe or .dll, max 10 MB)"),
+    current_user: UserIdentity = Depends(get_current_user)
+):
+    """
+    Submits a Windows PE binary for isolated static analysis, cryptographic fingerprinting,
+    ClamAV signature scanning, and ML classification.
+    Requires an authenticated user session (Supabase JWT or authorized demo token).
+    Persists scan results to Supabase PostgreSQL without saving binary payload.
+    Optimal for binaries <= 4.5 MB.
+    """
+    filename = file.filename or "unknown_binary"
+    max_bytes = settings.MAX_FILE_SIZE_BYTES
+    content = bytearray()
+    chunk_size = 64 * 1024  # 64 KB chunks
+    
+    while True:
+        chunk = await file.read(chunk_size)
+        if not chunk:
+            break
+        content.extend(chunk)
+        if len(content) > max_bytes:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File exceeds maximum allowed size of 10 MB ({format_bytes(len(content))} received)."
+            )
+
+    return await _execute_scan_pipeline(bytes(content), filename, current_user, request)
+
+@router.post("/scans/storage", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/scan/storage", response_model=ScanResponse, status_code=status.HTTP_201_CREATED)
+async def create_scan_from_storage(
+    request: Request,
+    payload: StorageScanRequest,
+    current_user: UserIdentity = Depends(get_current_user)
+):
+    """
+    Scans a Windows PE binary uploaded directly to private Supabase Storage (bypasses Vercel's 4.5 MB payload limit for files up to 10 MB).
+    Immediately deletes the binary payload after retrieval. Zero public binary exposure.
+    """
+    storage_path = payload.storage_path.strip().lstrip("/")
+    if ".." in storage_path or not storage_path:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid storage path.")
+
+    filename = payload.file_name or storage_path.split("/")[-1] or "uploaded_binary.exe"
+    bucket_name = "malguard-quarantine"
+    raw_token = extract_bearer_token(request)
+
+    headers = {}
+    if raw_token:
+        headers["Authorization"] = f"Bearer {raw_token}"
+    if settings.SUPABASE_ANON_KEY:
+        headers["apikey"] = settings.SUPABASE_ANON_KEY
+
+    download_url = f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/authenticated/{bucket_name}/{storage_path}"
+    binary_data = b""
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.get(download_url, headers=headers)
+            if resp.status_code != 200:
+                logger.error(f"Failed to fetch {storage_path} from Supabase storage: {resp.status_code}")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"File not found in private quarantine storage or unauthorized (HTTP {resp.status_code})."
+                )
+            binary_data = resp.content
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Storage retrieval error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Failed to retrieve file from quarantine storage: {str(e)}"
+        )
+    finally:
+        # Guarantee binary payload is deleted from quarantine storage immediately
+        try:
+            delete_url = f"{settings.SUPABASE_URL.rstrip('/')}/storage/v1/object/{bucket_name}"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                await client.request("DELETE", delete_url, headers=headers, json={"prefixes": [storage_path]})
+                logger.info(f"Purged quarantine binary '{storage_path}' from storage.")
+        except Exception as del_err:
+            logger.warning(f"Could not purge quarantine file '{storage_path}': {del_err}")
+
+    # Integrity verification if client supplied SHA-256
+    if payload.sha256:
+        calculated_sha256 = compute_hashes(binary_data)["sha256"]
+        if calculated_sha256.lower() != payload.sha256.lower():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Integrity check failed: Client SHA-256 does not match downloaded binary payload."
+            )
+
+    return await _execute_scan_pipeline(binary_data, filename, current_user, request)
+
 
 @router.get("/scans", response_model=List[Dict[str, Any]])
 @router.get("/scans/history", response_model=List[Dict[str, Any]])

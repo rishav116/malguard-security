@@ -109,3 +109,9 @@ class CopilotChatResponse(BaseModel):
 
 class SuggestedQuestionsResponse(BaseModel):
     categories: Dict[str, List[Dict[str, str]]]
+
+class StorageScanRequest(BaseModel):
+    storage_path: str = Field(..., description="Relative path in private Supabase Storage bucket (malguard-quarantine)")
+    file_name: Optional[str] = Field(default=None, description="Original filename")
+    sha256: Optional[str] = Field(default=None, description="Client computed SHA-256 for integrity verification")
+
