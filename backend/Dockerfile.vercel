@@ -29,12 +29,17 @@ RUN freshclam --verbose && \
 
 # Configure clamd for internal-only loopback communication (127.0.0.1:3310)
 # Port 3310 is strictly bound to 127.0.0.1 and NEVER exposed outside the container
-RUN sed -i 's/^#TCPSocket 3310/TCPSocket 3310/' /etc/clamav/clamd.conf && \
-    sed -i 's/^#TCPAddr localhost/TCPAddr 127.0.0.1/' /etc/clamav/clamd.conf && \
-    sed -i 's/^TCPAddr .*/TCPAddr 127.0.0.1/' /etc/clamav/clamd.conf && \
-    sed -i 's/^StreamMaxLength .*/StreamMaxLength 25M/' /etc/clamav/clamd.conf && \
-    sed -i 's/^MaxScanSize .*/MaxScanSize 100M/' /etc/clamav/clamd.conf && \
-    sed -i 's/^MaxFileSize .*/MaxFileSize 25M/' /etc/clamav/clamd.conf && \
+RUN sed -i 's/^#*TCPSocket .*/TCPSocket 3310/' /etc/clamav/clamd.conf && \
+    grep -q "^TCPSocket " /etc/clamav/clamd.conf || echo "TCPSocket 3310" >> /etc/clamav/clamd.conf && \
+    sed -i 's/^#*TCPAddr .*/TCPAddr 127.0.0.1/' /etc/clamav/clamd.conf && \
+    grep -q "^TCPAddr " /etc/clamav/clamd.conf || echo "TCPAddr 127.0.0.1" >> /etc/clamav/clamd.conf && \
+    sed -i 's/^#*StreamMaxLength .*/StreamMaxLength 25M/' /etc/clamav/clamd.conf && \
+    sed -i 's/^#*MaxScanSize .*/MaxScanSize 100M/' /etc/clamav/clamd.conf && \
+    sed -i 's/^#*MaxFileSize .*/MaxFileSize 25M/' /etc/clamav/clamd.conf && \
+    sed -i 's/^#*MaxThreads .*/MaxThreads 2/' /etc/clamav/clamd.conf && \
+    grep -q "^MaxThreads " /etc/clamav/clamd.conf || echo "MaxThreads 2" >> /etc/clamav/clamd.conf && \
+    sed -i 's/^#*ConcurrentDatabaseReload .*/ConcurrentDatabaseReload no/' /etc/clamav/clamd.conf && \
+    grep -q "^ConcurrentDatabaseReload " /etc/clamav/clamd.conf || echo "ConcurrentDatabaseReload no" >> /etc/clamav/clamd.conf && \
     mkdir -p /var/run/clamav /var/log/clamav /var/lib/clamav && \
     chown -R clamav:clamav /var/run/clamav /var/log/clamav /var/lib/clamav
 
