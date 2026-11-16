@@ -83,7 +83,8 @@ class ScanRepository:
             self._fallback_store[user_id].insert(0, record)
             return True
 
-        auth_bearer = raw_token if raw_token else self.anon_key
+        # Use client JWT if valid format (3 parts), otherwise use service anon key
+        auth_bearer = raw_token if (raw_token and "." in raw_token) else self.anon_key
         headers = {
             "apikey": self.anon_key,
             "Authorization": f"Bearer {auth_bearer}",
@@ -146,7 +147,7 @@ class ScanRepository:
         remote_records: Optional[List[Dict[str, Any]]] = None
 
         if self.supabase_url and self.anon_key:
-            auth_bearer = raw_token if raw_token else self.anon_key
+            auth_bearer = raw_token if (raw_token and "." in raw_token) else self.anon_key
             headers = {
                 "apikey": self.anon_key,
                 "Authorization": f"Bearer {auth_bearer}",
@@ -188,11 +189,11 @@ class ScanRepository:
                     )
 
         # If remote returned records, use them
-        if remote_records is not None:
+        if remote_records is not None and len(remote_records) > 0:
             return remote_records
 
-        # Only if fallback is explicitly permitted (e.g. offline unit testing)
-        if settings.ALLOW_IN_MEMORY_FALLBACK:
+        # If fallback is explicitly permitted (e.g. preview / demo / offline testing), check session fallback store
+        if settings.ALLOW_IN_MEMORY_FALLBACK and user_id in self._fallback_store:
             user_records = self._fallback_store.get(user_id, [])
             filtered = user_records
 
@@ -208,6 +209,9 @@ class ScanRepository:
                 ]
 
             return filtered[:limit]
+
+        if remote_records is not None:
+            return remote_records
 
         return []
 
@@ -228,7 +232,7 @@ class ScanRepository:
                     return s
 
         if self.supabase_url and self.anon_key:
-            auth_bearer = raw_token if raw_token else self.anon_key
+            auth_bearer = raw_token if (raw_token and "." in raw_token) else self.anon_key
             headers = {
                 "apikey": self.anon_key,
                 "Authorization": f"Bearer {auth_bearer}",

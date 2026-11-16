@@ -45,7 +45,7 @@ async def get_current_user(
         if allow_demo:
             logger.info("Authenticated unauthenticated guest/demo analyst session (preview/dev mode).")
             return UserIdentity(
-                user_id="demo-analyst-uuid-2026",
+                user_id="00000000-0000-0000-0000-000000002026",
                 email="analyst@malguard.ai",
                 role="analyst",
                 is_demo=True
@@ -69,7 +69,7 @@ async def get_current_user(
         if allow_demo:
             logger.info("Authenticated demo analyst session (preview/dev mode).")
             return UserIdentity(
-                user_id="demo-analyst-uuid-2026",
+                user_id="00000000-0000-0000-0000-000000002026",
                 email="analyst@malguard.ai",
                 role="analyst",
                 is_demo=True

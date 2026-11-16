@@ -38,10 +38,9 @@ async def _execute_scan_pipeline(
     request: Request
 ) -> ScanResponse:
     lower_name = filename.lower()
-    is_eicar = binary_data.strip().startswith(b"X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*")
     
-    # 1. Extension validation (Allows standard Windows PE binaries, or .com for authenticated EICAR test string)
-    if not (lower_name.endswith(".exe") or lower_name.endswith(".dll") or (is_eicar and lower_name.endswith(".com"))):
+    # 1. Extension validation (Windows PE binaries only: .exe, .dll)
+    if not (lower_name.endswith(".exe") or lower_name.endswith(".dll")):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unsupported file format: '{filename}'. Only Windows PE binaries (.exe, .dll) are accepted."
@@ -54,16 +53,15 @@ async def _execute_scan_pipeline(
             detail=f"File exceeds maximum allowed size of 10 MB ({format_bytes(total_bytes)} received)."
         )
 
-    # 2. PE Magic Bytes Verification (MZ header + PE offset check; bypassed only for standard EICAR test string)
-    if not is_eicar:
-        try:
-            validate_pe_magic_bytes(binary_data)
-        except PEValidationError as e:
-            logger.warning(f"File '{filename}' failed PE validation: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid Windows PE structure: {str(e)}"
-            )
+    # 2. PE Magic Bytes Verification (Strict MZ header + PE offset check)
+    try:
+        validate_pe_magic_bytes(binary_data)
+    except PEValidationError as e:
+        logger.warning(f"File '{filename}' failed PE validation: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid Windows PE structure: {str(e)}"
+        )
 
     # 3. Cryptographic Hashing
     hashes = compute_hashes(binary_data)
@@ -71,41 +69,13 @@ async def _execute_scan_pipeline(
     logger.info(f"Initiated scan {scan_id} for '{filename}' ({hashes['sha256']}) by owner {current_user.user_id}")
 
     # 4. Static PE Analysis via pefile
-    if not is_eicar:
-        try:
-            pe_analysis = analyze_pe_binary(binary_data)
-        except ValueError as e:
-            logger.error(f"PE static analysis failed: {e}")
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Unable to parse PE headers: {str(e)}"
-            )
-    else:
-        from app.models.schemas import PEAnalysisResult, PEHeaderInfo
-        pe_analysis = PEAnalysisResult(
-            status="eicar_test_pattern",
-            headers=PEHeaderInfo(
-                machine="DOS",
-                machine_hex="0x0",
-                number_of_sections=0,
-                time_date_stamp=0,
-                compilation_timestamp="N/A",
-                characteristics_hex="0x0",
-                is_dll=False,
-                is_executable_image=True,
-                subsystem="DOS_COM",
-                magic="DOS COM Executable",
-                entry_point_rva="0x0",
-                image_base="0x0"
-            ),
-            sections=[],
-            imported_dlls_count=0,
-            imported_dlls=[],
-            total_imports_count=0,
-            exported_functions_count=0,
-            exported_functions=[],
-            file_entropy=3.14,
-            suspicious_indicators=["EICAR standard antivirus test signature pattern"]
+    try:
+        pe_analysis = analyze_pe_binary(binary_data)
+    except ValueError as e:
+        logger.error(f"PE static analysis failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Unable to parse PE headers: {str(e)}"
         )
 
     # 5. Isolated ClamAV Signature Scan
@@ -327,20 +297,81 @@ async def get_scan_detail(
         )
     return record
 
-@router.post("/scans/test-eicar")
+@router.post("/scans/test-eicar", response_model=ScanResponse)
 async def test_eicar_signature(
+    request: Request,
     current_user: UserIdentity = Depends(get_current_user),
 ):
     """
-    Safely tests ClamAV signature detection using the standard EICAR string.
-    Does not execute or download any malware binary.
+    Safely tests ClamAV signature detection using the standard harmless EICAR test string.
+    Does not write to disk, execute, or download any real malware binary.
+    Persists authenticated test scan record to Supabase for visibility in Threat Reports.
     """
     from app.services.clamd_daemon import EICAR_STANDARD_STRING
+    from app.models.schemas import MLInferenceResult, PEAnalysisResult, PEHeaderInfo
+    raw_token = extract_bearer_token(request)
+    
     result = clamav_service.scan_stream(EICAR_STANDARD_STRING)
-    return {
-        "status": "success",
-        "tested_signature": "EICAR Standard Antivirus Test String",
-        "verdict": VerdictEnum.MALICIOUS.value if result.matched else VerdictEnum.INCONCLUSIVE.value,
-        "verdict_reasons": [f"Confirmed malware signature match: {result.signature_name}"] if result.matched else ["No threat signature matched"],
-        "clamav_result": result.model_dump()
-    }
+    scan_id = str(uuid.uuid4())
+    hashes = compute_hashes(EICAR_STANDARD_STRING)
+    
+    pe_analysis = PEAnalysisResult(
+        status="eicar_signature_probe",
+        headers=PEHeaderInfo(
+            machine="DOS",
+            machine_hex="0x0",
+            number_of_sections=0,
+            time_date_stamp=0,
+            compilation_timestamp="N/A",
+            characteristics_hex="0x0",
+            is_dll=False,
+            is_executable_image=True,
+            subsystem="DOS_COM",
+            magic="EICAR Standard Test File",
+            entry_point_rva="0x0",
+            image_base="0x0"
+        ),
+        sections=[],
+        imported_dlls_count=0,
+        imported_dlls=[],
+        total_imports_count=0,
+        exported_functions_count=0,
+        exported_functions=[],
+        file_entropy=3.14,
+        suspicious_indicators=["EICAR standard harmless antivirus test signature"]
+    )
+    
+    ml_result = MLInferenceResult(
+        status="not_applicable",
+        available=True,
+        model_name="Random Forest PE Classifier v1.0",
+        prediction="malicious" if result.matched else "benign",
+        confidence_score=0.99 if result.matched else 0.5,
+        features_used_count=0,
+        message="Harmless EICAR signature test probe (standard antivirus test sequence)."
+    )
+    
+    verdict = VerdictEnum.MALICIOUS if result.matched else VerdictEnum.INCONCLUSIVE
+    verdict_reasons = (
+        [f"Confirmed malware signature match: {result.signature_name}"]
+        if result.matched
+        else ["No threat signature matched"]
+    )
+    
+    scan_response = ScanResponse(
+        scan_id=scan_id,
+        file_name="eicar_test_sample.com",
+        file_size_bytes=len(EICAR_STANDARD_STRING),
+        formatted_size=format_bytes(len(EICAR_STANDARD_STRING)),
+        hashes=hashes,
+        owner_id=current_user.user_id,
+        pe_analysis=pe_analysis,
+        clamav=result,
+        ml_inference=ml_result,
+        verdict=verdict,
+        verdict_reasons=verdict_reasons,
+        pipeline_status="completed"
+    )
+    
+    await scan_repository.save_scan(scan_response, current_user.user_id, raw_token)
+    return scan_response
