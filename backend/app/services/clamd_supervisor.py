@@ -161,7 +161,6 @@ def dump_clamav_log(lines: int = 30):
                     return
             except Exception as e:
                 log(f"Could not read {log_path}: {e}")
-            log(f"Could not read {log_path}: {e}")
 
 def signal_handler(signum, frame):
     global shutdown_requested
@@ -176,7 +175,9 @@ def run_supervisor():
     signal.signal(signal.SIGINT, signal_handler)
 
     log("Initializing ClamAV Lifecycle Supervisor...")
-    
+    current_status["state"] = "STARTING"
+    update_status_file()
+
     # Clean stale flags
     for key, path in FLAGS.items():
         if os.path.exists(path):
@@ -244,6 +245,9 @@ def run_supervisor():
 
         while not shutdown_requested and proc.poll() is None:
             poll_count += 1
+            current_status["uptime_sec"] = round(time.time() - start_time, 1)
+            update_status_file()
+
             is_ok, ver, err = probe_daemon_socket(timeout=1.0)
             if is_ok:
                 elapsed = round(time.time() - start_time, 2)

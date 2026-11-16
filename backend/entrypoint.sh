@@ -26,6 +26,9 @@ if [ ! -f /var/lib/clamav/daily.cvd ] && [ ! -f /var/lib/clamav/daily.cld ]; the
     exit 1
 fi
 
+# Seed initial supervisor status immediately so early health probes never see null
+echo '{"state": "STARTING", "pid": null, "version": null, "crashes": 0, "restarts": 0, "ready_at": null, "uptime_sec": 0.0, "last_error": null}' > /tmp/clamd.status
+
 # Launch ClamAV Lifecycle Supervisor asynchronously in background
 echo "[1/2] Launching ClamAV Lifecycle Supervisor asynchronously in background..."
 python3 -u /app/app/services/clamd_supervisor.py &
