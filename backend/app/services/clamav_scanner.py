@@ -22,10 +22,10 @@ class ClamAVScanner:
         self.port = port
         self.timeout = timeout
 
-    def _connect_socket(self, timeout: float = 0.3) -> Optional[socket.socket]:
+    def _connect_socket(self, timeout: float = 1.5) -> Optional[socket.socket]:
         """
-        Non-blocking socket connection that avoids Windows WinNAT / OS SYN retransmission hangs.
-        Guarantees fast connection (<1ms) or fast failure (<300ms).
+        Non-blocking socket connection with configurable timeout (default 1.5s).
+        Avoids connection hangs while allowing sufficient time under CPU load.
         """
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -47,57 +47,66 @@ class ClamAVScanner:
         except Exception:
             return None
         
-    def ping_daemon(self, timeout: float = 0.3) -> bool:
+    def ping_daemon(self, timeout: float = 1.0) -> bool:
         """Pings clamd daemon to test TCP connectivity."""
         s = self._connect_socket(timeout=timeout)
         if not s:
             return False
         try:
             with s:
+                s.settimeout(timeout)
                 s.sendall(b"zPING\x00")
                 response = s.recv(1024)
                 return b"PONG" in response
         except Exception:
             return False
 
-    def get_daemon_version(self, timeout: float = 0.3) -> Optional[str]:
+    def get_daemon_version(self, timeout: float = 1.5) -> Optional[str]:
         """Queries clamd daemon for its version string via zVERSION."""
         s = self._connect_socket(timeout=timeout)
         if not s:
             return None
         try:
             with s:
+                s.settimeout(timeout)
                 s.sendall(b"zVERSION\x00")
                 raw = s.recv(1024).decode("utf-8", errors="ignore").strip().rstrip("\x00")
                 return raw if raw else None
         except Exception:
             return None
 
-    def verify_daemon_engine(self, timeout: float = 0.3) -> tuple[bool, bool, str]:
+    def verify_daemon_engine(self, timeout: float = 1.5) -> tuple[bool, bool, str]:
         """
-        Reliably inspects and validates the connected ClamAV daemon.
+        Reliably inspects and validates the connected ClamAV daemon using a single connection.
         Returns:
             (is_online: bool, is_official: bool, version_info: str)
             - is_online: True if socket connects and responds to ping or version.
             - is_official: True ONLY if version string confirms official ClamAV with database signatures.
             - version_info: Version description or error detail.
         """
-        version = self.get_daemon_version(timeout=timeout)
-        if not version:
-            if self.ping_daemon(timeout=timeout):
-                return True, False, "ClamAV daemon responding (VERSION unverified)"
-            return False, False, "ClamAV daemon offline / unreachable"
-
-        ver_lower = version.lower()
-        if "emulator" in ver_lower or "dev-only" in ver_lower:
-            return True, False, version
-
-        # Official ClamAV format: ClamAV <engine_version>/<db_version>/<date>
-        # e.g. "ClamAV 1.5.4/28182/Fri Nov 13 06:24:28 2026"
-        if version.startswith("ClamAV ") and "/" in version:
-            return True, True, version
-
-        return True, False, f"Unverified daemon ({version})"
+        s = self._connect_socket(timeout=timeout)
+        if not s:
+            return False, False, "ClamAV daemon offline / unreachable on 127.0.0.1:3310"
+        try:
+            with s:
+                s.settimeout(timeout)
+                s.sendall(b"zVERSION\x00")
+                raw = s.recv(1024).decode("utf-8", errors="ignore").strip().rstrip("\x00")
+                if raw:
+                    ver_lower = raw.lower()
+                    if "emulator" in ver_lower or "dev-only" in ver_lower:
+                        return True, False, raw
+                    if raw.startswith("ClamAV ") and "/" in raw:
+                        return True, True, raw
+                    return True, False, f"Unverified daemon ({raw})"
+                # If zVERSION returned empty, try ping
+                s.sendall(b"zPING\x00")
+                resp = s.recv(1024)
+                if b"PONG" in resp:
+                    return True, False, "ClamAV daemon responding (VERSION unverified)"
+                return False, False, "ClamAV daemon unresponsive"
+        except Exception as e:
+            return False, False, f"ClamAV communication error: {str(e)}"
 
     def is_starting(self) -> bool:
         """Checks if clamd daemon is actively initializing signatures."""
@@ -258,5 +267,17 @@ class ClamAVScanner:
                 matched=False,
                 message=f"ClamAV scanning failed: {str(e)}"
             )
+
+    @staticmethod
+    def is_starting() -> bool:
+        """Returns True if the clamd daemon is currently in the process of starting."""
+        import os
+        return os.path.exists("/var/run/clamav/clamd.starting") or os.path.exists("/tmp/clamd.starting")
+
+    @staticmethod
+    def is_failed() -> bool:
+        """Returns True if the clamd daemon failed to launch or exited abnormally."""
+        import os
+        return os.path.exists("/var/run/clamav/clamd.failed") or os.path.exists("/tmp/clamd.failed")
 
 clamav_service = ClamAVScanner()

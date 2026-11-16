@@ -108,7 +108,12 @@ async def _execute_scan_pipeline(
         # Default strictly to INCONCLUSIVE when engines are offline/unavailable
         verdict = VerdictEnum.INCONCLUSIVE
         if not clamav_result.available:
-            verdict_reasons.append("ClamAV signature engine was unavailable during this scan.")
+            if clamav_service.is_starting():
+                verdict_reasons.append("ClamAV signature engine is currently initializing (loading official database signatures into memory).")
+            elif clamav_service.is_failed():
+                verdict_reasons.append("ClamAV signature daemon encountered a runtime startup failure.")
+            else:
+                verdict_reasons.append("ClamAV signature engine was unavailable during this scan.")
         if not ml_result.available:
             verdict_reasons.append("Random Forest ML model is not loaded.")
         verdict_reasons.append("Static PE metadata and cryptographic hashes were successfully extracted, but a definitive threat verdict requires active backend scanning engines.")

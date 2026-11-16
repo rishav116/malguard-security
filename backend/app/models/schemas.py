@@ -15,6 +15,7 @@ class HealthResponse(BaseModel):
     version: str
     environment: str
     engines: Dict[str, str]
+    diagnostics: Optional[Dict[str, Any]] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class PESectionDetail(BaseModel):

@@ -34,11 +34,12 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS Middleware
+# CORS Middleware (supports configured origins + all Vercel Preview/Production domains)
 is_wildcard = "*" in settings.CORS_ORIGINS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=r"^https:\/\/.*\.vercel\.app$",
     allow_credentials=not is_wildcard,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,8 +47,8 @@ app.add_middleware(
 
 # Mount root health check endpoint
 @app.get("/health", tags=["Health"])
-def root_health():
-    return get_health()
+async def root_health():
+    return await get_health()
 
 # Mount API v1 router
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
