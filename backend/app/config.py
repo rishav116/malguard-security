@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     # ClamAV Configuration
     CLAMAV_HOST: str = Field(default="127.0.0.1", validation_alias="CLAMAV_HOST")
     CLAMAV_PORT: int = Field(default=3310, validation_alias="CLAMAV_PORT")
-    CLAMAV_TIMEOUT_SEC: float = Field(default=2.0, validation_alias="CLAMAV_TIMEOUT_SEC")
+    CLAMAV_TIMEOUT_SEC: float = Field(default=10.0, validation_alias="CLAMAV_TIMEOUT_SEC")
     CLAMAV_CLI_PATH: str = Field(default="clamscan", validation_alias="CLAMAV_CLI_PATH")
     
     # ML Model Configuration (Phase 4B placeholder)

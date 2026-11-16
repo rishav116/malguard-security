@@ -103,17 +103,19 @@ def probe_clamd_socket(host: str = "127.0.0.1", port: int = 3310, timeout: float
         diag["connected"] = True
         diag["connect_ms"] = connect_ms
 
-        # Probe PING
-        t_ping = time.perf_counter()
-        s.sendall(b"zPING\x00")
-        resp = s.recv(1024)
-        diag["ping_ms"] = round((time.perf_counter() - t_ping) * 1000, 2)
-        diag["ping_ok"] = b"PONG" in resp
-
-        # Probe VERSION
+        # In clamd wire protocol, clamd answers a command and closes the connection.
+        # Sending zVERSION probes responsiveness (PING equivalent) and retrieves version string in one operation.
+        t_probe = time.perf_counter()
         s.sendall(b"zVERSION\x00")
-        raw_v = s.recv(1024).decode("utf-8", errors="ignore").strip().rstrip("\x00")
-        diag["version"] = raw_v if raw_v else None
+        resp = s.recv(1024)
+        diag["ping_ms"] = round((time.perf_counter() - t_probe) * 1000, 2)
+        if resp:
+            raw_v = resp.decode("utf-8", errors="ignore").strip().rstrip("\x00")
+            diag["ping_ok"] = True
+            diag["version"] = raw_v if raw_v else None
+        else:
+            diag["ping_ok"] = False
+            diag["error"] = "clamd closed connection without version response"
 
     except socket.timeout:
         diag["error"] = f"Socket timed out after {timeout}s"
@@ -153,6 +155,23 @@ def get_system_diagnostics(clamav_host: str = "127.0.0.1", clamav_port: int = 33
     ready_flag = os.path.exists("/var/run/clamav/clamd.ready") or os.path.exists("/tmp/clamd.ready")
     starting_flag = os.path.exists("/var/run/clamav/clamd.starting") or os.path.exists("/tmp/clamd.starting")
     failed_flag = os.path.exists("/var/run/clamav/clamd.failed") or os.path.exists("/tmp/clamd.failed")
+    crashed_flag = os.path.exists("/tmp/clamd.crash_info")
+
+    supervisor_info = None
+    if os.path.exists("/tmp/clamd.status"):
+        try:
+            with open("/tmp/clamd.status", "r", encoding="utf-8") as sf:
+                supervisor_info = json.load(sf)
+        except Exception:
+            pass
+
+    crash_info = None
+    if os.path.exists("/tmp/clamd.crash_info"):
+        try:
+            with open("/tmp/clamd.crash_info", "r", encoding="utf-8") as cf:
+                crash_info = json.load(cf)
+        except Exception:
+            pass
 
     return {
         "instance_id": INSTANCE_ID,
@@ -167,6 +186,7 @@ def get_system_diagnostics(clamav_host: str = "127.0.0.1", clamav_port: int = 33
             "ready": ready_flag,
             "starting": starting_flag,
             "failed": failed_flag,
+            "crashed": crashed_flag,
         },
         "memory_mb": {
             "fastapi_rss": fastapi_rss,
@@ -174,5 +194,7 @@ def get_system_diagnostics(clamav_host: str = "127.0.0.1", clamav_port: int = 33
             "cgroup_current": cgroup_usage,
             "cgroup_limit": cgroup_limit,
         },
-        "clamav_socket": socket_diag
+        "clamav_socket": socket_diag,
+        "supervisor": supervisor_info,
+        "last_crash": crash_info
     }

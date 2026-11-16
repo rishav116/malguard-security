@@ -21,29 +21,20 @@ class ClamAVScanner:
         self.host = host
         self.port = port
         self.timeout = timeout
+        self._cached_version_info: Optional[str] = None
+        self._is_official_engine: bool = False
 
-    def _connect_socket(self, timeout: float = 1.5) -> Optional[socket.socket]:
+    def _connect_socket(self, timeout: float = 2.0) -> Optional[socket.socket]:
         """
-        Non-blocking socket connection with configurable timeout (default 1.5s).
-        Avoids connection hangs while allowing sufficient time under CPU load.
+        Connects to clamd TCP socket with timeout.
+        Uses standard socket timeout which works reliably cross-platform on Linux and Windows.
         """
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.setblocking(False)
-            err = s.connect_ex((self.host, self.port))
-            if err == 0:
-                s.setblocking(True)
-                s.settimeout(self.timeout)
-                return s
-            _, writable, exceptional = select.select([], [s], [s], timeout)
-            if writable and not exceptional:
-                sock_err = s.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
-                if sock_err == 0:
-                    s.setblocking(True)
-                    s.settimeout(self.timeout)
-                    return s
-            s.close()
-            return None
+            s.settimeout(timeout)
+            s.connect((self.host, self.port))
+            s.settimeout(self.timeout)
+            return s
         except Exception:
             return None
         
@@ -95,16 +86,17 @@ class ClamAVScanner:
                 if raw:
                     ver_lower = raw.lower()
                     if "emulator" in ver_lower or "dev-only" in ver_lower:
+                        self._cached_version_info = raw
+                        self._is_official_engine = False
                         return True, False, raw
                     if raw.startswith("ClamAV ") and "/" in raw:
+                        self._cached_version_info = raw
+                        self._is_official_engine = True
                         return True, True, raw
+                    self._cached_version_info = raw
+                    self._is_official_engine = False
                     return True, False, f"Unverified daemon ({raw})"
-                # If zVERSION returned empty, try ping
-                s.sendall(b"zPING\x00")
-                resp = s.recv(1024)
-                if b"PONG" in resp:
-                    return True, False, "ClamAV daemon responding (VERSION unverified)"
-                return False, False, "ClamAV daemon unresponsive"
+                return False, False, "ClamAV daemon returned empty response"
         except Exception as e:
             return False, False, f"ClamAV communication error: {str(e)}"
 
@@ -124,7 +116,15 @@ class ClamAVScanner:
         tmp_dir = tempfile.gettempdir()
         for path in ["/var/run/clamav/clamd.failed", "/tmp/clamd.failed", os.path.join(tmp_dir, "clamd.failed")]:
             if os.path.exists(path):
-                return True, "Process exited unexpectedly during startup"
+                reason = "Process exited unexpectedly during startup"
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        c = f.read().strip()
+                        if c:
+                            reason = c
+                except Exception:
+                    pass
+                return True, reason
         for path in ["/var/run/clamav/clamd.timeout", "/tmp/clamd.timeout", os.path.join(tmp_dir, "clamd.timeout")]:
             if os.path.exists(path):
                 return True, "Startup timed out (>60s)"
@@ -133,9 +133,10 @@ class ClamAVScanner:
     def scan_stream(self, data: bytes) -> ClamAVResult:
         """Streams raw bytes to clamd via zINSTREAM protocol."""
         start_time = time.perf_counter()
-        s = self._connect_socket(timeout=0.5)
+        s = self._connect_socket(timeout=2.0)
         if not s:
             logger.debug("clamd stream connection failed (daemon offline or unreachable)")
+            self._cached_version_info = None
             return self._scan_with_cli_or_unavailable(data, start_time)
 
         try:
@@ -154,7 +155,13 @@ class ClamAVScanner:
                 response = s.recv(4096).decode("utf-8", errors="ignore").strip()
                 scan_ms = round((time.perf_counter() - start_time) * 1000, 2)
                 
-                is_online, is_official, version_str = self.verify_daemon_engine(timeout=0.3)
+                # Resolve verified engine identity
+                if self._cached_version_info is None:
+                    _, is_official, version_str = self.verify_daemon_engine(timeout=1.5)
+                else:
+                    is_official = self._is_official_engine
+                    version_str = self._cached_version_info
+                
                 is_dev = not is_official
 
                 # Format: "stream: OK" or "stream: <SignatureName> FOUND"
@@ -202,6 +209,7 @@ class ClamAVScanner:
                     )
         except Exception as e:
             logger.debug(f"clamd stream connection failed: {e}")
+            self._cached_version_info = None
             return self._scan_with_cli_or_unavailable(data, start_time)
 
     def _scan_with_cli_or_unavailable(self, data: bytes, start_time: float) -> ClamAVResult:
