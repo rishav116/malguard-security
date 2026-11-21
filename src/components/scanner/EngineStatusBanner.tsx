@@ -9,10 +9,6 @@ import {
   ShieldAlert, 
   ExternalLink, 
   CheckCircle2, 
-  Info,
-  ChevronDown,
-  ChevronUp,
-  Cpu,
   Sparkles
 } from "lucide-react";
 import { DetectionEngineStatus, checkDetectionEngineHealth } from "@/lib/api/scannerService";
@@ -33,7 +29,6 @@ export default function EngineStatusBanner({
   isScanningCloud = false,
 }: EngineStatusBannerProps) {
   const [isChecking, setIsChecking] = useState(false);
-  const [showDocs, setShowDocs] = useState(false);
 
   const handleTestConnection = async () => {
     setIsChecking(true);
@@ -97,9 +92,6 @@ export default function EngineStatusBanner({
                     ? "Initializing Security Engine (Cold Start)"
                     : "Detection Engine Not Connected"}
                 </h3>
-                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-slate-900 border border-white/10 text-slate-300 max-w-[200px] sm:max-w-none truncate">
-                  {engineStatus.endpoint}
-                </span>
                 {engineStatus.isWarmingUp && (
                   <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 animate-pulse">
                     Loading 3.6M signatures into RAM...
@@ -180,40 +172,10 @@ export default function EngineStatusBanner({
           </div>
         </div>
 
-        {/* Toggle Developer Notes */}
-        <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs font-mono text-slate-400">
-          <button
-            onClick={() => setShowDocs(!showDocs)}
-            className="flex items-center gap-1.5 text-cyan-400 hover:text-cyan-300 transition-colors"
-          >
-            <Info className="w-3.5 h-3.5" />
-            <span>FastAPI Architecture & Integration Specs</span>
-            {showDocs ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-          </button>
-          <span>Last checked: {engineStatus.lastChecked}</span>
-        </div>
-
-        {/* Expandable Developer Info */}
-        {showDocs && (
-          <div className="mt-4 p-4 rounded-xl bg-[#040914] border border-white/[0.08] text-xs font-mono text-slate-300 space-y-2.5 animate-in fade-in duration-200">
-            <div className="text-cyan-300 font-bold flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-cyan-400" />
-              <span>Future FastAPI Backend Specification (Phase 4 Ready)</span>
-            </div>
-            <p className="text-slate-400 leading-relaxed text-xs">
-              The scanner is fully wired to integrate with your upcoming FastAPI microservice.
-              Once running, start your FastAPI service on <code className="text-cyan-300 font-mono">http://localhost:8000</code> or configure <code className="text-cyan-300 font-mono">NEXT_PUBLIC_FASTAPI_URL</code> in <code className="text-cyan-300 font-mono">.env.local</code>.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs font-mono">
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-white/5">
-                <span className="text-slate-400 block mb-0.5">Health Endpoint:</span>
-                <span className="text-emerald-400">GET /api/v1/health</span>
-              </div>
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-white/5">
-                <span className="text-slate-400 block mb-0.5">Classification Endpoint:</span>
-                <span className="text-purple-400">POST /api/v1/scan (multipart/form-data)</span>
-              </div>
-            </div>
+        {/* Last Checked Timestamp */}
+        {engineStatus.lastChecked && (
+          <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-end text-xs font-mono text-slate-400">
+            <span>Last checked: {engineStatus.lastChecked}</span>
           </div>
         )}
 

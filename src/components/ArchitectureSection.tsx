@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import FadeInSection from "./FadeInSection";
 import { 
   Sparkles, 
   Terminal, 
@@ -30,21 +31,27 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-panel border border-cyan-400/25 text-xs font-mono text-cyan-300 mb-4">
-            <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-            <span>AI COGNITIVE ARCHITECTURE</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.2]">
-            Malix AI Security Assistant
-          </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-300">
-            Designed to bridge deterministic signature scanning and machine learning with generative AI, 
-            MALGUARD AI combines Random Forest ML classification and ClamAV signatures with Malix AI to generate plain-English security explanations.
-          </p>
+          <FadeInSection direction="down" delay={0.05}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass-panel border border-cyan-400/25 text-xs font-mono text-cyan-300 mb-4">
+              <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+              <span>AI COGNITIVE ARCHITECTURE</span>
+            </div>
+          </FadeInSection>
+          <FadeInSection direction="up" delay={0.12} distance={24} scale={0.98}>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-[1.2]">
+              Malix AI Security Assistant
+            </h2>
+          </FadeInSection>
+          <FadeInSection direction="up" delay={0.2} distance={20}>
+            <p className="mt-4 text-base sm:text-lg text-slate-300">
+              Designed to bridge deterministic signature scanning and machine learning with generative AI, 
+              MALGUARD AI combines Random Forest ML classification and ClamAV signatures with Malix AI to generate plain-English security explanations.
+            </p>
+          </FadeInSection>
         </div>
 
         {/* Tab Selector */}
-        <div className="flex justify-center mb-10 w-full">
+        <FadeInSection direction="up" delay={0.24} scale={0.98} distance={20} className="flex justify-center mb-10 w-full">
           <div className="glass-panel p-1 rounded-xl flex flex-col sm:flex-row gap-1 border border-white/[0.08] w-full sm:w-auto">
             <button
               onClick={() => setActiveTab("malix")}
@@ -77,10 +84,11 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
               Threat Intelligence & Audit
             </button>
           </div>
-        </div>
+        </FadeInSection>
 
         {/* Dynamic Interactive Panel */}
-        <div className="rounded-2xl sm:rounded-3xl glass-panel p-4 xs:p-6 sm:p-10 border border-cyan-500/20 shadow-[0_4px_40px_rgba(0,0,0,0.6)]">
+        <FadeInSection direction="up" delay={0.3} scale={0.97} distance={32}>
+          <div className="rounded-2xl sm:rounded-3xl glass-panel p-4 xs:p-6 sm:p-10 border border-cyan-500/20 shadow-[0_4px_40px_rgba(0,0,0,0.6)]">
           
           {activeTab === "malix" && (
             <div id="malix-ai" className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center animate-in fade-in duration-300">
@@ -269,6 +277,7 @@ export default function ArchitectureSection({ onOpenScanModal }: { onOpenScanMod
           )}
 
         </div>
+        </FadeInSection>
 
       </div>
     </section>

@@ -521,9 +521,9 @@ export default function FloatingMalixOrb() {
         aria-label="Malix AI trigger"
         className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center justify-center select-none"
       >
-        {/* Ambient Pulsing Glow Halo */}
+        {/* Subtle Ambient Glow Halo */}
         <div
-          className="absolute -inset-2 rounded-full bg-gradient-to-tr from-cyan-500/30 via-purple-600/30 to-rose-500/20 blur-lg pointer-events-none animate-pulse duration-[3500ms]"
+          className="absolute inset-0.5 rounded-full bg-gradient-to-tr from-cyan-500/20 via-purple-600/20 to-rose-500/10 blur-sm pointer-events-none"
           aria-hidden="true"
         />
 
@@ -535,13 +535,7 @@ export default function FloatingMalixOrb() {
           title={isOpen ? "Close Malix AI" : "Ask Malix AI Security Assistant"}
         >
           {/* 3D Sphere SVG */}
-          <MalixSphereOrbSvg className="w-full h-full drop-shadow-[0_0_14px_rgba(34,211,238,0.7)]" />
-
-          {/* Active indicator dot */}
-          <span className="absolute top-0.5 right-0.5 flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 border-2 border-[#060D19]"></span>
-          </span>
+          <MalixSphereOrbSvg className="w-full h-full drop-shadow-[0_0_5px_rgba(34,211,238,0.4)]" />
 
           {/* Hover Tooltip Pill */}
           <span className="pointer-events-none absolute -top-8 right-1/2 translate-x-1/2 whitespace-nowrap px-2.5 py-1 rounded-full bg-[#071120]/95 border border-cyan-400/40 text-[11px] font-mono text-cyan-300 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200">

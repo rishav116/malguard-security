@@ -318,11 +318,11 @@
 
 @keyframes orb-glow-pulse {
   0%, 100% {
-    filter: drop-shadow(0 0 16px rgba(34, 211, 238, 0.65)) drop-shadow(0 0 32px rgba(217, 70, 239, 0.45));
-    opacity: 0.9;
+    filter: drop-shadow(0 0 4px rgba(34, 211, 238, 0.45)) drop-shadow(0 0 8px rgba(217, 70, 239, 0.25));
+    opacity: 0.95;
   }
   50% {
-    filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.85)) drop-shadow(0 0 38px rgba(217, 70, 239, 0.6));
+    filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6)) drop-shadow(0 0 10px rgba(217, 70, 239, 0.35));
     opacity: 1;
   }
 }

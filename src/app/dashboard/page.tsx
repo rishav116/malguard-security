@@ -9,6 +9,7 @@ import OverviewCards from "@/components/dashboard/OverviewCards";
 import ScanCharts from "@/components/dashboard/ScanCharts";
 import RecentScansTable, { ScanItem } from "@/components/dashboard/RecentScansTable";
 import GeminiAssistantCard from "@/components/dashboard/GeminiAssistantCard";
+import FadeInSection from "@/components/FadeInSection";
 import ScanModal from "@/components/ScanModal";
 import { fetchDashboardMetrics } from "@/lib/api/scannerService";
 import { formatDeterministicDateTime } from "@/lib/utils/timeFormat";
@@ -194,55 +195,65 @@ export default function DashboardPage() {
         <main className="p-3 xs:p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 flex-1">
           
           {/* Welcome Banner & Environment Notice */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
-            <div>
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-xs font-mono font-medium text-cyan-300 mb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                <span>ANALYST WORKSPACE</span>
+          <FadeInSection direction="down" delay={0.05} distance={16}>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-white/[0.06]">
+              <div>
+                <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-xs font-mono font-medium text-cyan-300 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  <span>ANALYST WORKSPACE</span>
+                </div>
+                <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold text-white tracking-tight font-display">
+                  Welcome back, {userDisplayName}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Security operations telemetry and static artifact inspection overview.
+                </p>
               </div>
-              <h2 className="text-xl xs:text-2xl sm:text-3xl font-bold text-white tracking-tight font-display">
-                Welcome back, {userDisplayName}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                Security operations telemetry and static artifact inspection overview.
-              </p>
-            </div>
 
-            {/* Supabase connection indicator pill */}
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <span className="text-slate-400">Auth Provider:</span>
-              <span className={`px-2.5 py-1 rounded-lg border font-semibold ${
-                isConfigured
-                  ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
-                  : "bg-cyan-950/40 border-cyan-500/30 text-cyan-300"
-              }`}>
-                {isConfigured ? "Supabase Cloud" : "Demo Session Active"}
-              </span>
+              {/* Supabase connection indicator pill */}
+              <div className="flex items-center gap-2 font-mono text-xs">
+                <span className="text-slate-400">Auth Provider:</span>
+                <span className={`px-2.5 py-1 rounded-lg border font-semibold ${
+                  isConfigured
+                    ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                    : "bg-cyan-950/40 border-cyan-500/30 text-cyan-300"
+                }`}>
+                  {isConfigured ? "Supabase Cloud" : "Demo Session Active"}
+                </span>
+              </div>
             </div>
-          </div>
+          </FadeInSection>
 
           {/* 1. Overview Metric Cards */}
-          <OverviewCards
-            totalScans={totalScans}
-            threatsDetected={threatsDetected}
-            cleanFiles={cleanFiles}
-            suspiciousFiles={suspiciousFiles}
-          />
+          <FadeInSection direction="up" delay={0.12} scale={0.98} distance={20}>
+            <OverviewCards
+              totalScans={totalScans}
+              threatsDetected={threatsDetected}
+              cleanFiles={cleanFiles}
+              suspiciousFiles={suspiciousFiles}
+            />
+          </FadeInSection>
 
           {/* 2. Charts Section (Activity + Distribution) */}
-          <ScanCharts hasData={isSampleData || totalScans > 0} />
+          <FadeInSection direction="up" delay={0.18} scale={0.97} distance={24}>
+            <ScanCharts hasData={isSampleData || totalScans > 0} />
+          </FadeInSection>
 
           {/* 3. Recent Scans Table (with true empty state and demo toggle) */}
-          <RecentScansTable
-            scans={scans}
-            onOpenQuickScan={() => setIsScanModalOpen(true)}
-            onToggleSampleData={handleToggleSampleData}
-            isSampleData={isSampleData}
-            onInspectScan={handleInspectScan}
-          />
+          <FadeInSection direction="up" delay={0.24} scale={0.97} distance={28}>
+            <RecentScansTable
+              scans={scans}
+              onOpenQuickScan={() => setIsScanModalOpen(true)}
+              onToggleSampleData={handleToggleSampleData}
+              isSampleData={isSampleData}
+              onInspectScan={handleInspectScan}
+            />
+          </FadeInSection>
 
           {/* 4. Gemini AI Assistant Entry Point (Live Phase 5) */}
-          <GeminiAssistantCard />
+          <FadeInSection direction="up" delay={0.3} scale={0.98} distance={24}>
+            <GeminiAssistantCard />
+          </FadeInSection>
 
         </main>
       </div>

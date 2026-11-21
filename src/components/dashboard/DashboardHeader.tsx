@@ -45,16 +45,8 @@ export default function DashboardHeader({
         </div>
       </div>
 
-      {/* Right section: System Status, Quick Scan, Profile Dropdown */}
+      {/* Right section: Quick Scan, Profile Dropdown */}
       <div className="flex items-center gap-3 sm:gap-4">
-        
-        {/* Engine status indicator */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#091526] border border-emerald-500/25 text-xs font-mono shadow-[0_0_12px_rgba(52,211,153,0.1)]">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_#34d399]" />
-          <span className="text-slate-400">AI Detection Engine:</span>
-          <span className="text-emerald-300 font-semibold">Active (RF v1.0 + Malix)</span>
-        </div>
-
         {/* Quick Scan CTA */}
         <Link
           href="/scanner"

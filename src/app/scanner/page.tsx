@@ -10,6 +10,7 @@ import FileDropZone from "@/components/scanner/FileDropZone";
 import InspectionProgress, { ScanStage } from "@/components/scanner/InspectionProgress";
 import FileInspectionCard from "@/components/scanner/FileInspectionCard";
 import EngineStatusBanner from "@/components/scanner/EngineStatusBanner";
+import FadeInSection from "@/components/FadeInSection";
 import { 
   inspectPEBinary, 
   PEInspectionResult 
@@ -291,50 +292,54 @@ export default function ScannerPage() {
         <main className="flex-1 p-3 xs:p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           
           {/* Breadcrumbs & Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-mono text-slate-400 mb-1.5">
-                <Link href="/dashboard" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Dashboard</span>
-                </Link>
-                <span>/</span>
-                <span className="text-cyan-300">File Scanner</span>
+          <FadeInSection direction="down" delay={0.05} distance={16}>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-mono text-slate-400 mb-1.5">
+                  <Link href="/dashboard" className="hover:text-cyan-400 transition-colors flex items-center gap-1">
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <span>/</span>
+                  <span className="text-cyan-300">File Scanner</span>
+                </div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-display flex items-center gap-2.5">
+                  <span>Static Binary Inspector</span>
+                  <span className="text-xs px-2 py-0.5 rounded font-mono font-bold bg-cyan-950/80 border border-cyan-500/30 text-cyan-300">
+                    PE32 / PE32+
+                  </span>
+                </h1>
+                <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
+                  Client-side Portable Executable verification and cryptographic hashing.
+                  Inspect Windows PE binaries (.exe and .dll) up to 10 MB.
+                </p>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-display flex items-center gap-2.5">
-                <span>Static Binary Inspector</span>
-                <span className="text-xs px-2 py-0.5 rounded font-mono font-bold bg-cyan-950/80 border border-cyan-500/30 text-cyan-300">
-                  PE32 / PE32+
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mt-1">
-                Client-side Portable Executable verification and cryptographic hashing.
-                Inspect Windows PE binaries (.exe and .dll) up to 10 MB.
-              </p>
-            </div>
 
-            {/* Engine Status Tag */}
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#071120] border border-white/10 text-xs font-mono">
-              <span
-                className={`w-2 h-2 rounded-full ${
-                  engineStatus.connected ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" : "bg-amber-400 animate-pulse"
-                }`}
-              />
-              <span className="text-slate-400">Backend:</span>
-              <span className={engineStatus.connected ? "text-emerald-300 font-semibold" : "text-amber-300 font-semibold"}>
-                {engineStatus.connected ? "Online" : "Not Connected"}
-              </span>
+              {/* Engine Status Tag */}
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#071120] border border-white/10 text-xs font-mono">
+                <span
+                  className={`w-2 h-2 rounded-full ${
+                    engineStatus.connected ? "bg-emerald-400 shadow-[0_0_8px_#34d399]" : "bg-amber-400 animate-pulse"
+                  }`}
+                />
+                <span className="text-slate-400">Backend:</span>
+                <span className={engineStatus.connected ? "text-emerald-300 font-semibold" : "text-amber-300 font-semibold"}>
+                  {engineStatus.connected ? "Online" : "Not Connected"}
+                </span>
+              </div>
             </div>
-          </div>
+          </FadeInSection>
 
           {/* Engine Status Banner */}
-          <EngineStatusBanner
-            engineStatus={engineStatus}
-            onRefreshStatus={(newStatus) => setEngineStatus(newStatus)}
-            hasFileSelected={Boolean(inspectionResult)}
-            onRunCloudScan={handleRunCloudScan}
-            isScanningCloud={isScanningCloud}
-          />
+          <FadeInSection direction="up" delay={0.12} scale={0.98} distance={20}>
+            <EngineStatusBanner
+              engineStatus={engineStatus}
+              onRefreshStatus={(newStatus) => setEngineStatus(newStatus)}
+              hasFileSelected={Boolean(inspectionResult)}
+              onRunCloudScan={handleRunCloudScan}
+              isScanningCloud={isScanningCloud}
+            />
+          </FadeInSection>
 
           {/* Pipeline Stage Tracker (visible while inspecting or once completed) */}
           {scannerState !== "idle" && (
@@ -346,10 +351,12 @@ export default function ScannerPage() {
 
           {/* Drop Zone (visible when idle) */}
           {scannerState === "idle" && (
-            <FileDropZone
-              onFileSelected={handleFileSelected}
-              isProcessing={false}
-            />
+            <FadeInSection direction="up" delay={0.18} scale={0.97} distance={28}>
+              <FileDropZone
+                onFileSelected={handleFileSelected}
+                isProcessing={false}
+              />
+            </FadeInSection>
           )}
 
           {/* Inspection In-Progress State */}
