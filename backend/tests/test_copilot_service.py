@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 from fastapi.testclient import TestClient
 from app.main import app
+from app.config import settings
 from app.core.auth import get_current_user, UserIdentity
 from app.models.schemas import CopilotChatRequest
 from app.services.gemini_assistant import gemini_copilot_service
@@ -21,12 +22,30 @@ def auth_copilot_client() -> TestClient:
     app.dependency_overrides.clear()
 
 def test_copilot_requires_authentication(client: TestClient):
-    response = client.post("/api/v1/copilot/chat", json={"message": "Is this file safe?"})
-    assert response.status_code == 401
+    orig_env = settings.ENVIRONMENT
+    orig_demo = settings.ALLOW_DEMO_AUTH
+    try:
+        settings.ENVIRONMENT = "production"
+        settings.ALLOW_DEMO_AUTH = False
+        response = client.post("/api/v1/copilot/chat", json={"message": "Is this file safe?"})
+        assert response.status_code == 401
+        assert "Missing Authorization header with Bearer token." in response.json()["detail"]
+    finally:
+        settings.ENVIRONMENT = orig_env
+        settings.ALLOW_DEMO_AUTH = orig_demo
 
 def test_copilot_stream_requires_authentication(client: TestClient):
-    response = client.post("/api/v1/copilot/chat/stream", json={"message": "Is this file safe?"})
-    assert response.status_code == 401
+    orig_env = settings.ENVIRONMENT
+    orig_demo = settings.ALLOW_DEMO_AUTH
+    try:
+        settings.ENVIRONMENT = "production"
+        settings.ALLOW_DEMO_AUTH = False
+        response = client.post("/api/v1/copilot/chat/stream", json={"message": "Is this file safe?"})
+        assert response.status_code == 401
+        assert "Missing Authorization header with Bearer token." in response.json()["detail"]
+    finally:
+        settings.ENVIRONMENT = orig_env
+        settings.ALLOW_DEMO_AUTH = orig_demo
 
 def test_copilot_rejects_oversized_message(auth_copilot_client: TestClient):
     long_msg = "A" * 2500  # Exceeds 2000 chars

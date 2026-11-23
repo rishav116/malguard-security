@@ -278,3 +278,66 @@ export async function inspectPEBinary(file: File): Promise<PEInspectionResult> {
     entropy,
   };
 }
+
+/**
+ * Synthesizes a valid, compliant Windows PE32 binary buffer for testing.
+ * Contains standard DOS header ('MZ'), e_lfanew pointer, PE signature ('PE\0\0'),
+ * COFF file header, Optional header, and .text section.
+ */
+export function generateTestPE(options?: { name?: string; includeEicar?: boolean }): File {
+  const buf = new Uint8Array(512);
+  const view = new DataView(buf.buffer);
+
+  // 1. DOS Header: 'MZ' (0x5A4D) at 0x00
+  buf[0] = 0x4d; // 'M'
+  buf[1] = 0x5a; // 'Z'
+
+  // 2. e_lfanew pointer at 0x3C pointing to offset 0x80 (128)
+  const e_lfanew = 0x80;
+  view.setUint32(0x3c, e_lfanew, true);
+
+  // 3. PE Signature 'PE\0\0' (0x00004550) at e_lfanew
+  buf[e_lfanew] = 0x50; // 'P'
+  buf[e_lfanew + 1] = 0x45; // 'E'
+  buf[e_lfanew + 2] = 0x00;
+  buf[e_lfanew + 3] = 0x00;
+
+  // 4. COFF File Header (20 bytes at e_lfanew + 4)
+  const coffOffset = e_lfanew + 4;
+  view.setUint16(coffOffset, 0x014c, true); // Machine: x86 Intel 386
+  view.setUint16(coffOffset + 2, 1, true); // NumberOfSections: 1
+  view.setUint32(coffOffset + 4, 1700000000, true); // TimeDateStamp
+  view.setUint32(coffOffset + 8, 0, true); // PointerToSymbolTable
+  view.setUint32(coffOffset + 12, 0, true); // NumberOfSymbols
+  view.setUint16(coffOffset + 16, 224, true); // SizeOfOptionalHeader
+  view.setUint16(coffOffset + 18, 0x0102, true); // Characteristics: EXECUTABLE_IMAGE | 32BIT_MACHINE
+
+  // 5. Optional Header (PE32 magic = 0x10b)
+  const optOffset = coffOffset + 20;
+  view.setUint16(optOffset, 0x010b, true); // Magic: PE32
+  view.setUint16(optOffset + 68, 2, true); // Subsystem: Windows GUI
+
+  // 6. Section Header (40 bytes at optOffset + 224)
+  const secOffset = optOffset + 224;
+  const secName = new TextEncoder().encode(".text\0\0\0");
+  buf.set(secName.slice(0, 8), secOffset);
+  view.setUint32(secOffset + 8, 0x1000, true); // VirtualSize
+  view.setUint32(secOffset + 12, 0x1000, true); // VirtualAddress
+  view.setUint32(secOffset + 16, 0x200, true); // SizeOfRawData
+  view.setUint32(secOffset + 20, 0x200, true); // PointerToRawData
+  view.setUint32(secOffset + 36, 0x60000020, true); // Characteristics: CODE | EXECUTE | READ
+
+  let filename = options?.name || "sample_diagnostic_tool.exe";
+  if (options?.includeEicar) {
+    // Append standard EICAR test string
+    const eicarStr = "X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*";
+    const eicarBytes = new TextEncoder().encode(eicarStr);
+    const combined = new Uint8Array(buf.length + eicarBytes.length);
+    combined.set(buf);
+    combined.set(eicarBytes, buf.length);
+    filename = options.name || "sample_eicar_test.exe";
+    return new File([combined], filename, { type: "application/x-dosexec" });
+  }
+
+  return new File([buf], filename, { type: "application/x-dosexec" });
+}

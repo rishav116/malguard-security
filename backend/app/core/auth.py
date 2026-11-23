@@ -1,6 +1,6 @@
 import os
 from typing import Optional, Dict, Any
-from fastapi import Depends, HTTPException, status
+from fastapi import Request, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 import jwt
@@ -29,6 +29,7 @@ def is_preview_or_dev() -> bool:
     )
 
 async def get_current_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme)
 ) -> UserIdentity:
     """
@@ -41,7 +42,16 @@ async def get_current_user(
     """
     allow_demo = is_preview_or_dev()
     
-    if not credentials or not credentials.credentials:
+    token: Optional[str] = None
+    if credentials and credentials.credentials:
+        token = credentials.credentials.strip()
+    else:
+        # Fallback check directly in request headers for reverse proxy compatibility
+        auth_header = request.headers.get("authorization", "") or request.headers.get("Authorization", "")
+        if auth_header and auth_header.strip().lower().startswith("bearer "):
+            token = auth_header.strip()[7:].strip()
+    
+    if not token:
         if allow_demo:
             logger.info("Authenticated unauthenticated guest/demo analyst session (preview/dev mode).")
             return UserIdentity(
@@ -61,7 +71,6 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    token = credentials.credentials.strip()
     is_demo_token = token in ["demo-token", "demo-analyst-uuid-2026"] or token.startswith("demo_")
     
     # 1. Demo Mode Check

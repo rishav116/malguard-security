@@ -299,6 +299,13 @@ export default function FloatingMalixOrb() {
           onError: (err: string) => {
             setErrorMessage(err);
             setIsSending(false);
+            const isAuthError =
+              err.toLowerCase().includes("authentication") ||
+              err.toLowerCase().includes("session") ||
+              err.toLowerCase().includes("sign in") ||
+              err.toLowerCase().includes("log in") ||
+              err.includes("401");
+
             setMessages((prev) =>
               prev.map((msg) =>
                 msg.id === botMessageId
@@ -306,8 +313,8 @@ export default function FloatingMalixOrb() {
                       ...msg,
                       content:
                         msg.content ||
-                        (err.includes("401") || err.toLowerCase().includes("unauthorized")
-                          ? "Please log in to your account to query Malix AI Security Assistant."
+                        (isAuthError
+                          ? "Authentication required. Please [sign in to your account](/login) to query Malix AI Security Assistant."
                           : `Unable to contact Malix AI detection backend right now (${err || "backend unreachable"}). Ensure the FastAPI server is running.`),
                       isStreaming: false,
                     }

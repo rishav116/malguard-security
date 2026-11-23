@@ -228,10 +228,30 @@ export async function submitBinaryForScan(
     };
   }
 
+  // Resolve valid Supabase auth token
+  let resolvedToken = authToken;
+  if (!resolvedToken) {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        resolvedToken = session.access_token;
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (session.expires_at && session.expires_at <= nowSec + 30) {
+          const { data: refreshed } = await supabase.auth.refreshSession();
+          if (refreshed?.session?.access_token) {
+            resolvedToken = refreshed.session.access_token;
+          }
+        }
+      }
+    } catch {
+      // Proceed with provided or fallback token
+    }
+  }
+
   const endpoint = `${health.endpoint}/api/v1/scan`;
 
   try {
-    // For files > 4.0 MB (up to 10 MB), direct upload to private Supabase Storage bypasses Vercel's 4.5 MB Function payload limit (accounting for multipart boundary overhead)
+    // For files > 4.0 MB (up to 10 MB), direct upload to private Supabase Storage bypasses Vercel's 4.5 MB Function payload limit
     if (file.size > 4.0 * 1024 * 1024) {
       try {
         const storagePath = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
@@ -241,19 +261,42 @@ export async function submitBinaryForScan(
 
         if (!uploadError && uploadData) {
           const storageEndpoint = `${health.endpoint}/api/v1/scan/storage`;
-          const storageResp = await fetch(storageEndpoint, {
+          const storageHeaders: Record<string, string> = {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          };
+          if (resolvedToken) {
+            storageHeaders["Authorization"] = `Bearer ${resolvedToken}`;
+          }
+
+          let storageResp = await fetch(storageEndpoint, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-            },
+            headers: storageHeaders,
             body: JSON.stringify({
               storage_path: storagePath,
               file_name: file.name,
               sha256: metadata.sha256,
             }),
           });
+
+          if (storageResp.status === 401) {
+            try {
+              const { data: refreshed } = await supabase.auth.refreshSession();
+              if (refreshed?.session?.access_token) {
+                resolvedToken = refreshed.session.access_token;
+                storageHeaders["Authorization"] = `Bearer ${resolvedToken}`;
+                storageResp = await fetch(storageEndpoint, {
+                  method: "POST",
+                  headers: storageHeaders,
+                  body: JSON.stringify({
+                    storage_path: storagePath,
+                    file_name: file.name,
+                    sha256: metadata.sha256,
+                  }),
+                });
+              }
+            } catch {}
+          }
 
           if (storageResp.ok) {
             const data: FastAPIScanResponse = await storageResp.json();
@@ -278,15 +321,38 @@ export async function submitBinaryForScan(
       Accept: "application/json",
     };
 
-    if (authToken) {
-      headers["Authorization"] = `Bearer ${authToken}`;
+    if (resolvedToken) {
+      headers["Authorization"] = `Bearer ${resolvedToken}`;
     }
 
-    const response = await fetch(endpoint, {
+    let response = await fetch(endpoint, {
       method: "POST",
       body: formData,
       headers,
     });
+
+    // 401 handling with proactive session refresh
+    if (response.status === 401) {
+      try {
+        const { data: refreshed } = await supabase.auth.refreshSession();
+        if (refreshed?.session?.access_token && refreshed.session.access_token !== resolvedToken) {
+          resolvedToken = refreshed.session.access_token;
+          headers["Authorization"] = `Bearer ${resolvedToken}`;
+          response = await fetch(endpoint, {
+            method: "POST",
+            body: formData,
+            headers,
+          });
+        }
+      } catch {}
+
+      if (response.status === 401) {
+        return {
+          success: false,
+          error: "Authentication required. Please sign in to your MALGUARD AI account to run binary scans and save threat reports.",
+        };
+      }
+    }
 
     if (!response.ok) {
       if (response.status === 413) {
@@ -297,9 +363,14 @@ export async function submitBinaryForScan(
         };
       }
       const errText = await response.text();
+      let parsedDetail = errText || response.statusText;
+      try {
+        const parsed = JSON.parse(errText);
+        parsedDetail = parsed.detail || parsedDetail;
+      } catch {}
       return {
         success: false,
-        error: `FastAPI error (${response.status}): ${errText || response.statusText}`,
+        error: `FastAPI error (${response.status}): ${parsedDetail}`,
       };
     }
 

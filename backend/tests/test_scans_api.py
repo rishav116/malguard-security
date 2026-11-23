@@ -3,19 +3,35 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.auth import get_current_user, UserIdentity
+from app.config import settings
 
 def test_scan_requires_authentication(client: TestClient, valid_pe_bytes: bytes):
-    files = {"file": ("test.exe", io.BytesIO(valid_pe_bytes), "application/x-dosexec")}
-    response = client.post("/api/v1/scans", files=files)
-    assert response.status_code == 401
-    assert "Missing Authorization" in response.json()["detail"]
+    orig_env = settings.ENVIRONMENT
+    orig_demo = settings.ALLOW_DEMO_AUTH
+    try:
+        settings.ENVIRONMENT = "production"
+        settings.ALLOW_DEMO_AUTH = False
+        files = {"file": ("test.exe", io.BytesIO(valid_pe_bytes), "application/x-dosexec")}
+        response = client.post("/api/v1/scans", files=files)
+        assert response.status_code == 401
+        assert "Missing Authorization" in response.json()["detail"]
+    finally:
+        settings.ENVIRONMENT = orig_env
+        settings.ALLOW_DEMO_AUTH = orig_demo
 
 def test_scan_rejects_demo_token_when_disabled(client: TestClient, valid_pe_bytes: bytes):
-    # When ALLOW_DEMO_AUTH is False, sending demo-token must return 401
-    files = {"file": ("test.exe", io.BytesIO(valid_pe_bytes), "application/x-dosexec")}
-    headers = {"Authorization": "Bearer demo-token"}
-    response = client.post("/api/v1/scans", files=files, headers=headers)
-    assert response.status_code in [401, 503]
+    orig_env = settings.ENVIRONMENT
+    orig_demo = settings.ALLOW_DEMO_AUTH
+    try:
+        settings.ENVIRONMENT = "production"
+        settings.ALLOW_DEMO_AUTH = False
+        files = {"file": ("test.exe", io.BytesIO(valid_pe_bytes), "application/x-dosexec")}
+        headers = {"Authorization": "Bearer demo-token"}
+        response = client.post("/api/v1/scans", files=files, headers=headers)
+        assert response.status_code in [401, 503]
+    finally:
+        settings.ENVIRONMENT = orig_env
+        settings.ALLOW_DEMO_AUTH = orig_demo
 
 def test_scan_rejects_non_exe_extension(auth_client: TestClient):
     files = {"file": ("malicious_doc.pdf", io.BytesIO(b"PDF-1.4 Fake PDF"), "application/pdf")}

@@ -1,8 +1,97 @@
+import { supabase } from "@/lib/supabase/client";
+
 /**
  * MALGUARD AI — Gemini Copilot Service
  * Interfaces with the FastAPI Gemini AI Assistant backend.
  * Supports non-blocking asynchronous requests and real-time SSE streaming.
  */
+
+export interface AuthTokenResult {
+  token: string | null;
+  error?: string;
+  needsLogin?: boolean;
+}
+
+/**
+ * Resolves a valid Supabase access token for API requests.
+ * 1. If a valid, non-expired token is provided, uses it.
+ * 2. Otherwise fetches the current session from supabase.auth.getSession().
+ * 3. If the session is expiring or expired, automatically refreshes it via supabase.auth.refreshSession().
+ * 4. Never returns a fabricated token.
+ */
+export async function getValidAuthToken(explicitToken?: string): Promise<AuthTokenResult> {
+  // If an explicit token was passed, check if it's usable
+  if (explicitToken && explicitToken.trim()) {
+    try {
+      const parts = explicitToken.trim().split(".");
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        const nowSec = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp > nowSec + 15) {
+          return { token: explicitToken.trim() };
+        }
+      } else {
+        // Non-JWT token format
+        return { token: explicitToken.trim() };
+      }
+    } catch {
+      // If parsing fails, fall through to getSession()
+    }
+  }
+
+  // Obtain current authenticated session using the existing Supabase client
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      console.warn("[copilotService] Supabase getSession error:", sessionError);
+    }
+
+    if (session?.access_token) {
+      const nowSec = Math.floor(Date.now() / 1000);
+      const isExpiring = session.expires_at ? session.expires_at <= nowSec + 30 : false;
+
+      if (!isExpiring) {
+        return { token: session.access_token };
+      }
+
+      // Token is expired or expiring in <= 30 seconds; refresh the session
+      try {
+        const { data: refreshed, error: refreshError } = await supabase.auth.refreshSession();
+        if (refreshed?.session?.access_token) {
+          return { token: refreshed.session.access_token };
+        }
+        if (refreshError) {
+          console.warn("[copilotService] Supabase session refresh failed:", refreshError);
+        }
+      } catch (refreshEx) {
+        console.warn("[copilotService] Refresh exception:", refreshEx);
+      }
+    }
+
+    // Direct session refresh attempt if getSession had no token or expired
+    try {
+      const { data: refreshedData } = await supabase.auth.refreshSession();
+      if (refreshedData?.session?.access_token) {
+        return { token: refreshedData.session.access_token };
+      }
+    } catch {
+      // Fall through to authentication required
+    }
+
+    return {
+      token: null,
+      error: "Authentication required. Please sign in to your MALGUARD AI account to chat with Malix AI Assistant.",
+      needsLogin: true,
+    };
+  } catch (err) {
+    return {
+      token: null,
+      error: `Authentication check failed: ${(err as Error).message}. Please log in again.`,
+      needsLogin: true,
+    };
+  }
+}
 
 function getCandidateBaseUrls(): string[] {
   const configured = process.env.NEXT_PUBLIC_FASTAPI_URL?.trim().replace(/\/+$/, "");
@@ -116,6 +205,67 @@ export async function fetchSuggestedQuestions(): Promise<{
 }
 
 /**
+ * Parses and processes an active SSE ReadableStream from the backend.
+ */
+async function readEventStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  callbacks: StreamCallbacks
+): Promise<void> {
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const blocks = buffer.split("\n\n");
+    buffer = blocks.pop() || "";
+
+    for (const block of blocks) {
+      const trimmed = block.trim();
+      if (!trimmed) continue;
+
+      for (const line of trimmed.split("\n")) {
+        if (line.startsWith("data: ")) {
+          const jsonStr = line.slice(6).trim();
+          try {
+            const data = JSON.parse(jsonStr);
+            if (data.event === "token" && typeof data.text === "string") {
+              callbacks.onToken(data.text);
+            } else if (data.event === "metadata") {
+              callbacks.onMetadata?.(data);
+            } else if (data.event === "done") {
+              callbacks.onDone?.(data.model_used || "gemini");
+            } else if (data.event === "error") {
+              callbacks.onError?.(data.detail || "Streaming error occurred");
+            }
+          } catch {
+            // Ignore partial JSON parse glitch on fragmented SSE chunks
+          }
+        }
+      }
+    }
+  }
+
+  // Flush any leftover buffer
+  if (buffer.trim()) {
+    for (const line of buffer.trim().split("\n")) {
+      if (line.startsWith("data: ")) {
+        try {
+          const data = JSON.parse(line.slice(6).trim());
+          if (data.event === "token" && typeof data.text === "string") {
+            callbacks.onToken(data.text);
+          }
+        } catch {
+          // Ignore
+        }
+      }
+    }
+  }
+}
+
+/**
  * Dispatches a chat message to Gemini AI Security Copilot (Non-streaming).
  */
 export async function sendCopilotMessage(
@@ -129,16 +279,20 @@ export async function sendCopilotMessage(
   success: boolean;
   data?: CopilotChatResponse;
   error?: string;
+  needsLogin?: boolean;
 }> {
-  const baseUrls = getCandidateBaseUrls();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
-
-  if (options.authToken) {
-    headers["Authorization"] = `Bearer ${options.authToken}`;
+  // 1. Obtain authenticated session token
+  const authResult = await getValidAuthToken(options.authToken);
+  if (!authResult.token) {
+    return {
+      success: false,
+      error: authResult.error || "Authentication required. Please sign in to your MALGUARD AI account.",
+      needsLogin: true,
+    };
   }
+
+  const baseUrls = getCandidateBaseUrls();
+  let currentToken = authResult.token;
 
   const bodyPayload = {
     message: message.trim(),
@@ -151,13 +305,46 @@ export async function sendCopilotMessage(
   for (const baseUrl of baseUrls) {
     try {
       const endpoint = `${baseUrl}/api/v1/copilot/chat`;
-      const res = await fetch(endpoint, {
+      let res = await fetch(endpoint, {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${currentToken}`,
+        },
         body: JSON.stringify(bodyPayload),
       });
 
+      // Handle 401 Unauthorized by attempting a token refresh
+      if (res.status === 401) {
+        try {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData?.session?.access_token && refreshData.session.access_token !== currentToken) {
+            currentToken = refreshData.session.access_token;
+            res = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${currentToken}`,
+              },
+              body: JSON.stringify(bodyPayload),
+            });
+          }
+        } catch {
+          // Fall through to 401 rejection
+        }
+      }
+
       if (!res.ok) {
+        if (res.status === 401) {
+          return {
+            success: false,
+            error: "Your session has expired. Please sign in again to continue.",
+            needsLogin: true,
+          };
+        }
+
         const errDetail = await res.text();
         let parsedDetail = `HTTP ${res.status}`;
         try {
@@ -182,6 +369,7 @@ export async function sendCopilotMessage(
 /**
  * Dispatches a real-time streaming chat message to Gemini AI Copilot via SSE.
  * Receives tokens progressively and calls onToken immediately for sub-second UI responsiveness.
+ * Authenticated via Supabase Bearer token.
  */
 export async function streamCopilotMessage(
   message: string,
@@ -193,16 +381,17 @@ export async function streamCopilotMessage(
     signal?: AbortSignal;
   } = {}
 ): Promise<void> {
-  const baseUrls = getCandidateBaseUrls();
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Accept: "text/event-stream",
-  };
-
-  if (options.authToken) {
-    headers["Authorization"] = `Bearer ${options.authToken}`;
+  // 1. Obtain authenticated session token
+  const authResult = await getValidAuthToken(options.authToken);
+  if (!authResult.token) {
+    callbacks.onError?.(
+      authResult.error || "Authentication required. Please sign in to your MALGUARD AI account to chat with Malix AI Assistant."
+    );
+    return;
   }
+
+  const baseUrls = getCandidateBaseUrls();
+  let currentToken = authResult.token;
 
   const bodyPayload = {
     message: message.trim(),
@@ -217,16 +406,47 @@ export async function streamCopilotMessage(
     const endpoint = `${baseUrl}/api/v1/copilot/chat/stream`;
 
     try {
-      const res = await fetch(endpoint, {
+      let res = await fetch(endpoint, {
         method: "POST",
-        headers,
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
+          Authorization: `Bearer ${currentToken}`,
+        },
         body: JSON.stringify(bodyPayload),
         signal: options.signal,
       });
 
+      // Handle 401 Unauthorized with token refresh
+      if (res.status === 401) {
+        try {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData?.session?.access_token && refreshData.session.access_token !== currentToken) {
+            currentToken = refreshData.session.access_token;
+            res = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "text/event-stream",
+                Authorization: `Bearer ${currentToken}`,
+              },
+              body: JSON.stringify(bodyPayload),
+              signal: options.signal,
+            });
+          }
+        } catch {
+          // Fall through
+        }
+      }
+
       connectionMade = true;
 
       if (!res.ok) {
+        if (res.status === 401) {
+          callbacks.onError?.("Your session has expired. Please sign in again to continue using Malix AI Assistant.");
+          return;
+        }
+
         const errDetail = await res.text();
         let parsedDetail = `HTTP ${res.status}`;
         try {
@@ -245,59 +465,7 @@ export async function streamCopilotMessage(
         return;
       }
 
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const blocks = buffer.split("\n\n");
-        buffer = blocks.pop() || "";
-
-        for (const block of blocks) {
-          const trimmed = block.trim();
-          if (!trimmed) continue;
-
-          for (const line of trimmed.split("\n")) {
-            if (line.startsWith("data: ")) {
-              const jsonStr = line.slice(6).trim();
-              try {
-                const data = JSON.parse(jsonStr);
-                if (data.event === "token" && typeof data.text === "string") {
-                  callbacks.onToken(data.text);
-                } else if (data.event === "metadata") {
-                  callbacks.onMetadata?.(data);
-                } else if (data.event === "done") {
-                  callbacks.onDone?.(data.model_used || "gemini");
-                } else if (data.event === "error") {
-                  callbacks.onError?.(data.detail || "Streaming error occurred");
-                }
-              } catch {
-                // Ignore partial JSON parse glitch on fragmented SSE chunks
-              }
-            }
-          }
-        }
-      }
-
-      // Flush any leftover buffer
-      if (buffer.trim()) {
-        for (const line of buffer.trim().split("\n")) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6).trim());
-              if (data.event === "token" && typeof data.text === "string") {
-                callbacks.onToken(data.text);
-              }
-            } catch {
-              // Ignore
-            }
-          }
-        }
-      }
-
+      await readEventStream(reader, callbacks);
       callbacks.onDone?.("gemini");
       return;
     } catch (err: unknown) {

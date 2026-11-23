@@ -272,14 +272,24 @@ function CopilotContent() {
           onError: (err: string) => {
             setErrorMessage(err);
             setIsSending(false);
+            const isAuthError =
+              err.toLowerCase().includes("authentication") ||
+              err.toLowerCase().includes("session") ||
+              err.toLowerCase().includes("sign in") ||
+              err.toLowerCase().includes("log in") ||
+              err.includes("401");
+
             setMessages((prev) => {
               const updated = [...prev];
               const lastIdx = updated.length - 1;
               if (lastIdx >= 0 && updated[lastIdx].role === "model") {
                 if (!updated[lastIdx].content) {
+                  const errorMsg = isAuthError
+                    ? `⚠️ **Authentication Required**\n\nYour session is either missing or has expired.\n\nPlease [sign in to your account](/login?redirectTo=/copilot) to continue chatting with Malix AI Assistant.`
+                    : `⚠️ *Assistant Error:* ${err}\n\nPlease check connection or try again.`;
                   updated[lastIdx] = {
                     ...updated[lastIdx],
-                    content: `⚠️ *Assistant Error:* ${err}\n\nPlease check connection or try again.`,
+                    content: errorMsg,
                     isStreaming: false,
                   };
                 } else {
@@ -582,9 +592,24 @@ function CopilotContent() {
 
           {/* Error Notice */}
           {errorMessage && (
-            <div className="p-3 rounded-xl bg-red-950/60 border border-red-500/30 text-red-300 text-xs font-mono flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-              <span>{errorMessage}</span>
+            <div className="p-3 rounded-xl bg-red-950/60 border border-red-500/30 text-red-300 text-xs font-mono flex items-center justify-between gap-3 shadow-lg">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{errorMessage}</span>
+              </div>
+              {(errorMessage.toLowerCase().includes("session") ||
+                errorMessage.toLowerCase().includes("authentication") ||
+                errorMessage.toLowerCase().includes("sign in") ||
+                errorMessage.toLowerCase().includes("log in") ||
+                errorMessage.includes("401")) && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/login?redirectTo=/copilot")}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-400/40 text-white font-semibold text-xs shrink-0 transition-colors cursor-pointer"
+                >
+                  Log In
+                </button>
+              )}
             </div>
           )}
 

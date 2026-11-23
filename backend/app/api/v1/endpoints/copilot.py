@@ -13,9 +13,9 @@ from app.services.gemini_assistant import gemini_copilot_service
 router = APIRouter(tags=["Gemini Copilot"])
 
 def extract_bearer_token(request: Request) -> Optional[str]:
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer "):
-        return auth_header.replace("Bearer ", "").strip()
+    auth_header = request.headers.get("authorization", "") or request.headers.get("Authorization", "")
+    if auth_header.lower().startswith("bearer "):
+        return auth_header[7:].strip()
     return None
 
 @router.post("/chat", response_model=CopilotChatResponse)
