@@ -8,6 +8,13 @@ from typing import Dict, Any, Optional
 BOOT_TIME = time.time()
 INSTANCE_ID = f"inst-{str(uuid.uuid4())[:8]}"
 
+# Short-lived cache for socket probe to prevent synchronous blocking on closed ports
+_SOCKET_PROBE_CACHE: Dict[str, Any] = {
+    "timestamp": 0.0,
+    "result": None,
+    "key": ""
+}
+
 def get_process_rss_mb(pid: int) -> Optional[float]:
     """Reads VmRSS from /proc/<pid>/status on Linux."""
     try:
@@ -83,7 +90,13 @@ def find_clamd_pid() -> Optional[int]:
     return None
 
 def probe_clamd_socket(host: str = "127.0.0.1", port: int = 3310, timeout: float = 1.0) -> Dict[str, Any]:
-    """Actively probes clamd on TCP socket with detailed timings."""
+    """Actively probes clamd on TCP socket with detailed timings and 3-second result caching."""
+    cache_key = f"{host}:{port}"
+    now = time.time()
+    if _SOCKET_PROBE_CACHE["key"] == cache_key and (now - _SOCKET_PROBE_CACHE["timestamp"] < 3.0):
+        if _SOCKET_PROBE_CACHE["result"] is not None:
+            return dict(_SOCKET_PROBE_CACHE["result"])
+
     diag = {
         "target": f"{host}:{port}",
         "connected": False,
@@ -129,6 +142,10 @@ def probe_clamd_socket(host: str = "127.0.0.1", port: int = 3310, timeout: float
                 s.close()
             except Exception:
                 pass
+
+    _SOCKET_PROBE_CACHE["timestamp"] = now
+    _SOCKET_PROBE_CACHE["key"] = cache_key
+    _SOCKET_PROBE_CACHE["result"] = dict(diag)
     return diag
 
 def get_system_diagnostics(clamav_host: str = "127.0.0.1", clamav_port: int = 3310) -> Dict[str, Any]:

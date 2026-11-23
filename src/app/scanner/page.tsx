@@ -101,33 +101,33 @@ export default function ScannerPage() {
     }
   }, [user, loading, router]);
 
-  // Initial engine health probe on mount
+  // Resilient engine health polling:
+  // - Poll every 3.5 seconds when disconnected or warming up (auto-connects when backend goes online)
+  // - Poll every 30 seconds when connected (maintains fresh live telemetry)
   useEffect(() => {
     let mounted = true;
-    checkDetectionEngineHealth().then((status) => {
-      if (mounted) {
-        setEngineStatus(status);
+
+    const pollHealth = async (force = false) => {
+      try {
+        const latest = await checkDetectionEngineHealth(force);
+        if (mounted) {
+          setEngineStatus(latest);
+        }
+      } catch {
+        // Handled gracefully in checkDetectionEngineHealth
       }
-    });
+    };
+
+    pollHealth(true);
+
+    const intervalMs = (!engineStatus.connected || engineStatus.isWarmingUp) ? 3500 : 30000;
+    const intervalId = setInterval(() => pollHealth(false), intervalMs);
+
     return () => {
       mounted = false;
+      clearInterval(intervalId);
     };
-  }, []);
-
-  // Automatic readiness polling when security engine is warming up (cold start)
-  useEffect(() => {
-    if (!engineStatus.isWarmingUp) return;
-
-    const intervalId = setInterval(async () => {
-      const latest = await checkDetectionEngineHealth();
-      setEngineStatus(latest);
-      if (!latest.isWarmingUp) {
-        clearInterval(intervalId);
-      }
-    }, 2500);
-
-    return () => clearInterval(intervalId);
-  }, [engineStatus.isWarmingUp]);
+  }, [engineStatus.connected, engineStatus.isWarmingUp]);
 
   // Handler for file drop / selection
   const handleFileSelected = useCallback(async (file: File) => {
@@ -146,8 +146,8 @@ export default function ScannerPage() {
     setCurrentStageIdx(0);
 
     try {
-      // Small visual delay so the user observes each pipeline stage transition smoothly
-      await new Promise((r) => setTimeout(r, 250));
+      // Visual stage transitions
+      await new Promise((r) => setTimeout(r, 200));
       
       // Stage 1 Done -> Stage 2: PE Header Parser
       setStages((prev) => [
@@ -170,10 +170,14 @@ export default function ScannerPage() {
 
       // Perform real client-side PE inspection & SHA-256
       const result = await inspectPEBinary(file);
-      await new Promise((r) => setTimeout(r, 250));
+      await new Promise((r) => setTimeout(r, 200));
 
-      // Stage 3 Done -> Stage 4: Engine Status Check
-      const latestEngine = await checkDetectionEngineHealth();
+      // Stage 3 Done -> Stage 4: Engine Status Check with retry resilience
+      let latestEngine = await checkDetectionEngineHealth(false);
+      if (!latestEngine.connected) {
+        await new Promise((r) => setTimeout(r, 400));
+        latestEngine = await checkDetectionEngineHealth(true);
+      }
       setEngineStatus(latestEngine);
 
       setStages((prev) => [

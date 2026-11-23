@@ -33,7 +33,7 @@ export default function EngineStatusBanner({
   const handleTestConnection = async () => {
     setIsChecking(true);
     try {
-      const updated = await checkDetectionEngineHealth();
+      const updated = await checkDetectionEngineHealth(true);
       onRefreshStatus(updated);
     } finally {
       setIsChecking(false);
