@@ -119,6 +119,13 @@ async def get_current_user(
                 role=payload.get("role", "authenticated"),
                 is_demo=False
             )
+        except jwt.ExpiredSignatureError:
+            logger.warning("Authentication token has expired.")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication token has expired. Please refresh your session.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
         except jwt.PyJWTError as e:
             logger.info("Local HS256 JWT decode unsuccessful (%s); falling through to Supabase Auth API", type(e).__name__)
             # Fall through to remote validation if secret failed
